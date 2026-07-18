@@ -10,8 +10,17 @@ const tokenHash = (token:string) => createHash("sha256").update(token).digest("h
 export async function ensurePrimaryAdmin(){
   const username=process.env.ADMIN_USERNAME?.trim(), password=process.env.ADMIN_PASSWORD, email=process.env.ADMIN_EMAIL?.trim();
   if(!username||!password||!email)return;
-  const [rows]=await db.query<any[]>("SELECT id FROM users WHERE username=? LIMIT 1",[username]);
-  if(rows.length)return;
+  const [rows]=await db.query<any[]>("SELECT id,role,email,password_hash FROM users WHERE username=? LIMIT 1",[username]);
+  if(rows.length){
+    const admin=rows[0];
+    if(admin.role!=="administrator")throw new Error("ADMIN_USERNAME_CONFLICT");
+    const passwordMatches=await bcrypt.compare(password,admin.password_hash);
+    if(!passwordMatches||admin.email!==email){
+      const passwordHash=passwordMatches?admin.password_hash:await bcrypt.hash(password,12);
+      await db.execute("UPDATE users SET email=?,password_hash=?,suspended=0 WHERE id=?",[email,passwordHash,admin.id]);
+    }
+    return;
+  }
   await db.execute("INSERT INTO users(id,role,username,email,password_hash,full_name) VALUES(?,?,?,?,?,?)",[randomUUID(),"administrator",username,email,await bcrypt.hash(password,12),"Primary Administrator"]);
 }
 
