@@ -7,7 +7,6 @@ import "./typography-enhancements.css";
 import "./home-stats.css";
 import "./user-management.css";
 import "./admin-loader.css";
-import ResourceReset from "@/components/ResourceReset";
 
 export const metadata: Metadata = {
   title: "Project HELPS | SDO Cebu Province",
@@ -17,7 +16,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
-      <body><ResourceReset/>{children}</body>
+      <body>{children}</body>
     </html>
   );
 }

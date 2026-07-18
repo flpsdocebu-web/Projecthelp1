@@ -1,0 +1,2 @@
+import {NextResponse} from "next/server";import {currentUser} from "@/lib/auth";import {db} from "@/lib/db";
+export async function POST(request:Request){const user=await currentUser();if(!user)return NextResponse.json({error:"Login required."},{status:401});const{resourceId,action}=await request.json();if(!["preview","download","print"].includes(action))return NextResponse.json({error:"Invalid activity."},{status:400});await db.execute("INSERT INTO resource_activity(resource_id,user_id,action) VALUES(?,?,?)",[resourceId,user.id,action]);return NextResponse.json({ok:true})}

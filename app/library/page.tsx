@@ -10,8 +10,8 @@ const uploadColors=["linear-gradient(145deg,#16765c,#45aa7c)","linear-gradient(1
 
 export default function Library(){
  const[query,setQuery]=useState(""),[subject,setSubject]=useState("All subjects"),[grade,setGrade]=useState("All grade levels"),[term,setTerm]=useState("All terms"),[uploaded,setUploaded]=useState<LibraryResource[]>([]);
- function loadUploads(){let records:UploadRecord[]=[];try{records=JSON.parse(localStorage.getItem("helps_uploaded_resources")||"[]")}catch{}setUploaded(records.map((record,index)=>({id:record.id,grade:record.gradeLevel,subject:record.learningArea,title:record.title,pages:0,term:record.term,uploaded:true,color:uploadColors[index%uploadColors.length]})))}
- useEffect(()=>{loadUploads();window.addEventListener("storage",loadUploads);window.addEventListener("helps-resources-updated",loadUploads);return()=>{window.removeEventListener("storage",loadUploads);window.removeEventListener("helps-resources-updated",loadUploads)}},[]);
+ function loadUploads(){fetch("/api/resources",{cache:"no-store"}).then(r=>r.json()).then(({resources=[]}:{resources:UploadRecord[]})=>setUploaded(resources.map((record,index)=>({id:record.id,grade:record.gradeLevel,subject:record.learningArea,title:record.title,pages:0,term:record.term,uploaded:true,color:uploadColors[index%uploadColors.length]})))).catch(()=>setUploaded([]))}
+ useEffect(()=>{loadUploads()},[]);
  const resources=useMemo(()=>[...uploaded,...starter],[uploaded]);
  const subjects=useMemo(()=>["All subjects",...Array.from(new Set(resources.map(resource=>resource.subject))).sort((a,b)=>a.localeCompare(b))],[resources]);
  const grades=useMemo(()=>["All grade levels",...Array.from(new Set(resources.map(resource=>resource.grade))).sort((a,b)=>a.localeCompare(b,undefined,{numeric:true}))],[resources]);

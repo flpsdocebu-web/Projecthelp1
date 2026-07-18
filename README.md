@@ -26,10 +26,10 @@ Use the repository root as the application directory.
 - Start command: `npm run start`
 - Node.js version: 20 or newer
 
-Add these variables through Hostinger's environment-variable settings. Do not commit their real values:
+Import `database/schema.sql` into the Hostinger database using phpMyAdmin, then add these server-only variables through Hostinger's environment-variable settings. Do not commit their real values:
 
-- `NEXT_PUBLIC_DEFAULT_ADMIN_USERNAME`
-- `NEXT_PUBLIC_DEFAULT_ADMIN_PASSWORD`
-- `NEXT_PUBLIC_DELETE_ALL_PIN`
+- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_SSL`
+- `ADMIN_USERNAME`, `ADMIN_PASSWORD`, `ADMIN_EMAIL`
+- `ADMIN_DELETE_PIN`
 
-The current account and resource data layer uses browser storage. Production email delivery and a shared SQL database require server-side services and separate secure credentials.
+Accounts use bcrypt password hashes and opaque HTTP-only database sessions. PDFs, activity logs, account records, districts, schools, and dashboard statistics are centralized in MySQL. Secure password-reset email delivery still requires Hostinger SMTP variables and a transactional mail route.
