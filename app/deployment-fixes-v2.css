@@ -3,7 +3,7 @@
   position: relative;
   z-index: 30;
   display: grid !important;
-  grid-template-columns: auto minmax(300px, 1fr) auto;
+  grid-template-columns: minmax(220px, 1fr) auto minmax(220px, 1fr);
   align-items: center;
   gap: 28px;
   width: 100%;
@@ -11,6 +11,19 @@
   color: var(--ink);
   background: #fff;
   border-bottom: 1px solid var(--line);
+  box-shadow: 0 5px 18px rgba(14, 58, 48, 0.06);
+}
+
+.project-header .brand {
+  justify-self: start;
+  min-width: 0;
+}
+
+.project-header .brand img {
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  object-fit: contain;
 }
 
 .project-header nav {
@@ -83,6 +96,10 @@
     padding: 2px 0;
   }
   .project-header .header-actions { grid-column: 2; grid-row: 1; }
+}
+
+@media (min-width: 981px) {
+  .project-header nav { justify-self: center; }
 }
 
 @media (max-width: 620px) {
