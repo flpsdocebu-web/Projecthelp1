@@ -13,6 +13,11 @@ export const metadata: Metadata = {
   description: "Learning Activity Sheets for flexible, accessible learning.",
 };
 
+// Hostinger must always serve HTML from the active build so it cannot reference
+// JavaScript chunks that belonged to a previous deployment.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
