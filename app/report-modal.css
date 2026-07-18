@@ -1,0 +1,8 @@
+.report-modal-backdrop{position:fixed;z-index:10000;inset:0;display:grid;place-items:center;padding:24px;background:rgba(8,35,48,.66);backdrop-filter:blur(7px)}
+.report-dialog{display:flex;flex-direction:column;width:min(760px,100%);max-height:calc(100vh - 48px);overflow:hidden;border:1px solid rgba(255,255,255,.75);border-radius:22px;background:#f8fcf9;box-shadow:0 30px 90px rgba(5,31,38,.42);animation:reportDialogIn .24s ease-out}
+.report-dialog-head{display:flex;align-items:center;gap:13px;flex:0 0 auto;padding:21px 24px;border-bottom:1px solid #d9e7df;background:linear-gradient(135deg,#e4f4ea,#f8fcf9)}
+.report-dialog-head>div{flex:1}.report-dialog-head small{color:#56806e;font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.report-dialog-head h2{margin:3px 0 0;color:#194a3a;font-size:21px}.report-dialog-head>button{width:36px;height:36px;border:0;border-radius:50%;color:#577369;background:#e1eee7;cursor:pointer;font-size:25px;line-height:1}.report-dialog-head>button:hover{color:#fff;background:#287653;transform:rotate(5deg)}
+.report-dialog .report-content{min-height:0;overflow-y:auto;padding:23px}.report-dialog .report-actions{flex:0 0 auto}
+@keyframes reportDialogIn{from{opacity:0;transform:translateY(18px) scale(.98)}to{opacity:1;transform:none}}
+@media(max-width:620px){.report-modal-backdrop{padding:10px}.report-dialog{max-height:calc(100vh - 20px);border-radius:16px}.report-dialog-head{padding:17px}.report-dialog .report-content{padding:17px}.report-dialog .report-actions{padding:13px 17px}}
+@media(prefers-reduced-motion:reduce){.report-dialog{animation:none}}

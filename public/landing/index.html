@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="DepEd Division of Cebu Province program portal for Project HELPS and Project I-TRACK."
+    />
+    <title>DepEd Cebu Province | Program Portal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&family=Source+Sans+3:wght@400;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <div class="background" aria-hidden="true"></div>
+      <div class="overlay" aria-hidden="true"></div>
+
+      <header class="site-header">
+        <img
+          class="brand-mark"
+          src="assets/cebu-province-logo-transparent.png"
+          alt="Division of Cebu Province, Department of Education logo"
+        />
+        <div class="brand-copy">
+          <p>Republic of the Philippines</p>
+          <h1><span>Department of Education</span><span>Region VII -Central Visayas</span><span>Division of Cebu Province</span></h1>
+          <p class="office-address">Sudlon, Lahug, Cebu City</p>
+        </div>
+      </header>
+
+      <main>
+        <section class="intro" aria-labelledby="portal-heading">
+          <div class="program-heading">
+            <img
+              class="flp-logo"
+              src="assets/flp-logo.png"
+              alt="Flexible Learning Program logo"
+            />
+            <p class="eyebrow">Flexible Learning Program</p>
+          </div>
+          <h2 id="portal-heading">Welcome to our program portal!</h2>
+          <p class="lead">Select a program below to continue.</p>
+        </section>
+
+        <nav class="program-grid" aria-label="Program links">
+          <a class="program-card helps" href="#" data-program="helps">
+            <span class="image-wrap">
+              <img src="assets/project-helps.png" alt="Project HELPS logo" />
+            </span>
+            <span class="program-info">
+              <span>
+                <small>Learning support</small>
+                <strong>Project HELPS</strong>
+              </span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </span>
+          </a>
+
+          <a class="program-card itrack" href="#" data-program="itrack">
+            <span class="image-wrap">
+              <img src="assets/itrack.png" alt="Project I-TRACK logo" />
+            </span>
+            <span class="program-info">
+              <span>
+                <small>Monitoring portal</small>
+                <strong>Project I-TRACK</strong>
+              </span>
+              <span class="arrow" aria-hidden="true">→</span>
+            </span>
+          </a>
+        </nav>
+      </main>
+
+      <footer>
+        <span>Department of Education</span>
+        <span class="dot" aria-hidden="true"></span>
+        <span>Division of Cebu Province</span>
+      </footer>
+    </div>
+
+    <div class="notice" role="status" aria-live="polite" hidden>
+      <span class="notice-icon" aria-hidden="true">i</span>
+      <span>Destination link is ready to be added.</span>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>

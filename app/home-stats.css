@@ -1,0 +1,13 @@
+.numbers.live-home-numbers{grid-template-columns:repeat(5,1fr);width:min(1280px,calc(100% - 32px));padding:14px}
+.live-home-numbers button{position:relative;padding:13px 9px;border:0;border-right:1px solid var(--line);color:var(--ink);background:transparent;cursor:pointer;text-align:center}
+.live-home-numbers button:last-child{border-right:0}
+.live-home-numbers button:hover,.live-home-numbers button:focus-visible{z-index:2;border-radius:13px;background:#edf8f2;box-shadow:0 8px 22px rgba(26,100,72,.11);outline:none;transform:translateY(-3px)}
+.live-home-numbers i{display:grid;place-items:center;width:28px;height:28px;margin:0 auto 5px;border-radius:9px;color:#287657;background:#e1f2e8;font-style:normal;font-size:13px}
+.live-home-numbers strong,.live-home-numbers span,.live-home-numbers small{display:block}
+.live-home-numbers strong{color:var(--navy);font-size:24px}
+.live-home-numbers span{margin-top:3px;color:var(--muted);font-size:11px}
+.live-home-numbers small{margin-top:4px;color:#3b8769;font-size:8px;opacity:0;transition:.2s}
+.live-home-numbers button:hover small,.live-home-numbers button:focus-visible small{opacity:1}
+.interactive-live-stat{cursor:pointer}.interactive-live-stat:hover{transform:translateY(-5px) scale(1.02)}
+@media(max-width:900px){.numbers.live-home-numbers{grid-template-columns:repeat(3,1fr)}.live-home-numbers button:nth-child(3){border-right:0}.live-home-numbers button:nth-child(n+4){border-top:1px solid var(--line)}}
+@media(max-width:620px){.numbers.live-home-numbers{grid-template-columns:repeat(2,1fr);width:calc(100% - 20px);padding:9px}.live-home-numbers button{border-right:0;border-bottom:1px solid var(--line)}.live-home-numbers button:nth-child(odd){border-right:1px solid var(--line)}.live-home-numbers button:last-child{grid-column:1/-1;border-right:0;border-bottom:0}.live-home-numbers strong{font-size:21px}.live-home-numbers span{font-size:10px}}

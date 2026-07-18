@@ -1,0 +1,453 @@
+:root {
+  --navy: #082a59;
+  --blue: #0755a5;
+  --gold: #f5c544;
+  --pastel-green: #75dce5;
+  --pastel-green-light: #dcf8fb;
+  --deep-green: #087d91;
+  --white: #ffffff;
+  --ink: #0c2340;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  width: 100%;
+  min-height: 100%;
+  background: #65d7e4;
+}
+
+body {
+  margin: 0;
+  width: 100%;
+  min-height: 100%;
+  overflow-x: hidden;
+  color: var(--white);
+  font-family: "Source Sans 3", Arial, sans-serif;
+}
+
+.page-shell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100svh;
+  width: 100%;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.background,
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+}
+
+.background {
+  background: url("assets/deped-cebu-province.jpg") center / cover no-repeat;
+  transform: scale(1.02);
+}
+
+.overlay {
+  z-index: -1;
+  background: linear-gradient(135deg, rgba(6, 77, 113, 0.9) 0%, rgba(8, 151, 172, 0.75) 48%, rgba(30, 190, 201, 0.82) 100%);
+  backdrop-filter: blur(1.5px);
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+  margin: 0;
+  padding: 18px max(28px, calc((100% - 1180px) / 2));
+  border-bottom: 1px solid #d7e2e8;
+  color: #d9ffe8;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-mark {
+  width: clamp(108px, 15vh, 192px);
+  height: clamp(108px, 15vh, 192px);
+  flex: 0 0 auto;
+  border-radius: 0;
+  object-fit: contain;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-copy p,
+.brand-copy h1 {
+  margin: 0;
+}
+
+.brand-copy p {
+  margin-bottom: 3px;
+  color: #d9ffe8;
+  font-family: "Poppins", Arial, sans-serif;
+  font-size: 13px;
+  letter-spacing: 0.09em;
+  text-transform: none;
+}
+
+.brand-copy h1 {
+  font-family: "Poppins", Arial, sans-serif;
+  color: #d9ffe8;
+  font-size: clamp(19px, 2vw, 29px);
+  font-weight: 700;
+}
+
+.brand-copy h1 span { display: block; line-height: 1.2; text-transform: uppercase; }
+.brand-copy h1 span:first-child { font-size: 1.05em; text-transform: none; }
+.brand-copy h1 span:nth-child(2) { margin-top: 2px; font-size: .9em; font-weight: 600; letter-spacing: .035em; }
+.brand-copy h1 span:last-child { margin-top: 2px; font-size: 1.35em; font-weight: 900; letter-spacing: 0.015em; text-shadow: none; }
+.brand-copy .office-address { margin-top: 4px; color: #d9ffe8; font-family: "Poppins", Arial, sans-serif; font-size: clamp(13px, 1.35vw, 18px); font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
+
+main {
+  align-self: center;
+  width: min(1080px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: clamp(18px, 3vh, 38px) 0 clamp(18px, 2.6vh, 32px);
+}
+
+.intro {
+  margin-bottom: clamp(16px, 2.5vh, 28px);
+  text-align: center;
+  animation: rise 0.7s ease-out both;
+}
+
+.program-heading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  margin: 0 0 13px;
+  flex-wrap: nowrap;
+}
+
+.flp-logo {
+  width: clamp(125px, 19vh, 230px);
+  height: clamp(125px, 19vh, 230px);
+  padding: 3px;
+  border: 2px solid rgba(255, 255, 255, 0.82);
+  border-radius: 10px;
+  object-fit: cover;
+  object-position: center 34%;
+  background: #fff;
+  box-shadow: 0 10px 24px rgba(16, 74, 54, 0.3);
+}
+
+.eyebrow {
+  margin: 0;
+  color: #d9ffe8;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(28px, 3.4vw, 45px);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+}
+
+.intro h2 {
+  margin: 0;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(20px, 2.7vw, 32px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  text-shadow: 0 3px 20px rgba(0, 0, 0, 0.32);
+}
+
+.lead {
+  margin: 10px 0 0;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 18px;
+}
+
+.program-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: clamp(22px, 5vw, 56px);
+  align-items: stretch;
+}
+
+.program-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: clamp(250px, 34vh, 340px);
+  overflow: hidden;
+  border: 2px solid rgba(223, 243, 231, 0.88);
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(245, 255, 249, 0.96);
+  box-shadow: 0 22px 55px rgba(8, 69, 48, 0.32);
+  text-decoration: none;
+  transform: translateY(0);
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  animation: rise 0.75s 0.12s ease-out both;
+}
+
+.program-card:nth-child(2) {
+  animation-delay: 0.22s;
+}
+
+.program-card::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 5px;
+  content: "";
+  background: linear-gradient(90deg, var(--deep-green), #7fd3a3, var(--gold));
+}
+
+.program-card::after {
+  position: absolute;
+  top: 0;
+  left: -130%;
+  width: 58%;
+  height: 100%;
+  content: "";
+  pointer-events: none;
+  background: linear-gradient(110deg, transparent, rgba(255, 255, 255, 0.48), transparent);
+  transform: skewX(-14deg);
+  transition: left 650ms ease;
+}
+
+.program-card:hover,
+.program-card:focus-visible {
+  border-color: #d9ffe8;
+  outline: none;
+  box-shadow: 0 30px 70px rgba(7, 72, 48, 0.5), 0 0 0 5px rgba(169, 226, 192, 0.2);
+  transform: translateY(-10px) scale(1.015);
+}
+
+.program-card:hover::after,
+.program-card:focus-visible::after {
+  left: 145%;
+}
+
+.image-wrap {
+  display: grid;
+  place-items: center;
+  flex: 1;
+  min-height: clamp(175px, 25vh, 260px);
+  padding: 22px 28px 8px;
+  background: linear-gradient(145deg, #ffffff 0%, #e4f9fc 100%);
+}
+
+.image-wrap img {
+  display: block;
+  width: 100%;
+  height: clamp(155px, 22vh, 230px);
+  object-fit: contain;
+  transition: transform 220ms ease;
+}
+
+.program-card:hover img {
+  transform: scale(1.035);
+}
+
+.program-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88px;
+  padding: 16px 22px;
+  border-top: 1px solid #dce5ef;
+  background: #fff;
+}
+
+.program-info small,
+.program-info strong {
+  display: block;
+}
+
+.program-info small {
+  margin-bottom: 2px;
+  color: #66788d;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.program-info strong {
+  color: var(--navy);
+  font-family: "Montserrat", sans-serif;
+  font-size: 20px;
+}
+
+.arrow {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  color: #fff;
+  background: var(--deep-green);
+  font-size: 23px;
+  transition: transform 220ms ease, background 220ms ease;
+}
+
+.program-card:hover .arrow,
+.program-card:focus-visible .arrow {
+  color: var(--deep-green);
+  background: var(--gold);
+  box-shadow: 0 6px 16px rgba(23, 107, 75, 0.28);
+  transform: translateX(5px) rotate(-5deg);
+}
+
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: clamp(10px, 1.7vh, 18px) 24px clamp(12px, 2vh, 22px);
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 13px;
+  letter-spacing: 0.03em;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 0;
+  background: var(--gold);
+}
+
+.notice {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  max-width: calc(100% - 40px);
+  padding: 13px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 12px;
+  color: #fff;
+  background: rgba(8, 42, 89, 0.95);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.28);
+}
+
+.notice-icon {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 6px;
+  color: var(--navy);
+  background: var(--gold);
+  font-weight: 800;
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 720px) {
+  .site-header,
+  main {
+    width: min(100% - 30px, 540px);
+  }
+
+  .site-header {
+    width: 100%;
+    padding: 14px 15px;
+  }
+
+  .brand-mark {
+    width: 112px;
+    height: 112px;
+  }
+
+  .brand-copy p {
+    font-size: 10px;
+  }
+
+  .brand-copy h1 { font-size: clamp(12px, 3vw, 17px); }
+  .brand-copy .office-address { font-size: 9px; }
+
+  main {
+    padding-top: 22px;
+    padding-bottom: 22px;
+  }
+
+  .program-heading {
+    gap: 10px;
+  }
+
+  .flp-logo {
+    width: 138px;
+    height: 138px;
+    border-radius: 8px;
+  }
+
+  .eyebrow {
+    font-size: clamp(12px, 3.6vw, 19px);
+    letter-spacing: 0.06em;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .program-grid {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .program-card {
+    min-height: 290px;
+  }
+
+  .image-wrap {
+    min-height: 205px;
+  }
+
+  .image-wrap img {
+    height: 185px;
+  }
+}
+
+@media (min-width: 721px) and (max-height: 820px) {
+  .site-header { gap: 16px; padding-top: 10px; padding-bottom: 10px; }
+  .brand-copy p { font-size: 11px; }
+  .brand-copy h1 { font-size: clamp(16px, 2.4vh, 23px); }
+  .brand-copy .office-address { font-size: clamp(10px, 1.7vh, 14px); }
+  .program-heading { gap: 18px; margin-bottom: 7px; }
+  .eyebrow { font-size: clamp(24px, 4.4vh, 36px); }
+  .intro h2 { font-size: clamp(18px, 3vh, 25px); }
+  .lead { margin-top: 5px; font-size: 15px; }
+  .program-info { min-height: 70px; padding: 10px 18px; }
+  .program-info strong { font-size: 18px; }
+}
+
+@media (max-width: 420px) {
+  .site-header { align-items: flex-start; gap: 10px; padding: 10px 12px; }
+  .brand-mark { width: 82px; height: 82px; }
+  .brand-copy p { font-size: 8px; }
+  .brand-copy h1 { font-size: 11px; }
+  .brand-copy h1 span:last-child { font-size: 1.2em; }
+  .brand-copy .office-address { font-size: 8px; }
+  main { width: calc(100% - 24px); }
+  .program-heading { flex-direction: column; gap: 8px; }
+  .flp-logo { width: 112px; height: 112px; }
+  .eyebrow { text-align: center; white-space: normal; }
+  footer { flex-wrap: wrap; padding-left: 12px; padding-right: 12px; text-align: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

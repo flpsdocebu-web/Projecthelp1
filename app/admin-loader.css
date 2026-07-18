@@ -1,0 +1,11 @@
+.admin-logo-loader{position:relative;display:grid;place-items:center;width:112px;height:112px}
+.admin-logo-loader:before,.admin-logo-loader:after,.admin-logo-loader span{position:absolute;border-radius:50%;content:""}
+.admin-logo-loader:before{inset:0;border:5px solid rgba(28,103,165,.14)}
+.admin-logo-loader:after{inset:0;border:5px solid transparent;border-top-color:#176ca8;border-right-color:#176ca8;animation:adminLogoSpin 1.35s linear infinite}
+.admin-logo-loader span{inset:8px;border:4px solid transparent;border-bottom-color:#f1b928;border-left-color:#f1b928;animation:adminLogoSpinReverse 1.8s linear infinite}
+.admin-logo-loader img{position:relative;z-index:2;width:96px;height:96px;padding:9px;object-fit:contain;border-radius:50%;background:#fff;box-shadow:0 10px 28px rgba(16,69,94,.15)}
+.admin-loading p{color:#245d76;font-size:14px;font-weight:700;letter-spacing:.01em}
+@keyframes adminLogoSpin{to{transform:rotate(360deg)}}
+@keyframes adminLogoSpinReverse{to{transform:rotate(-360deg)}}
+@media(max-width:620px){.admin-logo-loader{width:104px;height:104px}.admin-logo-loader img{width:88px;height:88px}}
+@media(prefers-reduced-motion:reduce){.admin-logo-loader:after,.admin-logo-loader span{animation-duration:3s}}

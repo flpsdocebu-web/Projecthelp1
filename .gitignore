@@ -1,0 +1,19 @@
+# Local archives and working copies
+mariadb-11.8.5-winx64.zip
+Codex/
+User Guides/
+
+# Dependencies and generated builds
+node_modules/
+.next/
+out/
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+
+# Logs and operating-system files
+*.log
+.DS_Store
+Thumbs.db
