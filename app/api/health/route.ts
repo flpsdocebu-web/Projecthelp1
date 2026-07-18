@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db";
+import { databaseConfig, db } from "@/lib/db";
 import { bcrypt, ensurePrimaryAdmin } from "@/lib/auth";
 
 const safeCode = (error: unknown) => {
@@ -19,9 +19,12 @@ const safeCode = (error: unknown) => {
 };
 
 export async function GET() {
-  const missingDatabase = ["DB_HOST", "DB_NAME", "DB_USER", "DB_PASSWORD"].filter(
-    (key) => !process.env[key],
-  );
+  const missingDatabase = [
+    ["DB_HOST", databaseConfig.host],
+    ["DB_NAME", databaseConfig.name],
+    ["DB_USER", databaseConfig.user],
+    ["DB_PASSWORD", databaseConfig.password],
+  ].filter(([, value]) => !value).map(([key]) => key);
   const missingAdministrator = ["ADMIN_USERNAME", "ADMIN_PASSWORD", "ADMIN_EMAIL"].filter(
     (key) => !process.env[key],
   );
@@ -37,7 +40,7 @@ export async function GET() {
     await db.query("SELECT 1");
     const [tableRows] = await db.query<any[]>(
       "SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema=? AND table_name IN ('users','sessions','resources','resource_activity','password_reset_tokens')",
-      [process.env.DB_NAME],
+      [databaseConfig.name],
     );
     const tables = Number(tableRows[0]?.count || 0);
     if (tables !== 5) {
