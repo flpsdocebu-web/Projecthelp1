@@ -17,6 +17,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="stylesheet" href="/project-helps-runtime.css?release=20260719-1" />
+      </head>
       <body>{children}</body>
     </html>
   );
