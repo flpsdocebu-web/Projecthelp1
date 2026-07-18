@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { MouseEvent, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import styles from "./Header.module.css";
 
 type Session = {
   username: string;
@@ -50,24 +49,24 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <header className={`${styles.header} ${compact ? styles.compact : styles.overlay}`}>
-      <Link className={styles.brand} href="/home/">
+    <header className={compact ? "topbar compact" : "topbar"}>
+      <Link className="brand" href="/home/">
         <img src="/project-helps-logo.png" alt="Project HELPS" />
         <span>
           <strong>Project HELPS</strong>
           <small>SDO Cebu Province</small>
         </span>
       </Link>
-      <nav className={styles.nav} aria-label="Primary navigation">
+      <nav>
         <Link
-          className={pathname.startsWith("/home") ? styles.active : ""}
+          className={pathname.startsWith("/home") ? "active" : ""}
           href="/home/"
           onClick={(event) => protectedNav(event, "/home/")}
         >
           Home
         </Link>
         <Link
-          className={pathname.startsWith("/library") ? styles.active : ""}
+          className={pathname.startsWith("/library") ? "active" : ""}
           href="/library/"
           onClick={(event) => protectedNav(event, "/library/")}
         >
@@ -76,14 +75,14 @@ export default function Header({ compact = false }: { compact?: boolean }) {
         {checked && session?.role === "administrator" && (
           <>
             <Link
-              className={pathname.startsWith("/dashboard") ? styles.active : ""}
+              className={pathname.startsWith("/dashboard") ? "active" : ""}
               href="/dashboard/"
               onClick={(event) => protectedNav(event, "/dashboard/", true)}
             >
               Dashboard
             </Link>
             <Link
-              className={pathname.startsWith("/users") ? styles.active : ""}
+              className={pathname.startsWith("/users") ? "active" : ""}
               href="/users/"
               onClick={(event) => protectedNav(event, "/users/", true)}
             >
@@ -92,10 +91,10 @@ export default function Header({ compact = false }: { compact?: boolean }) {
           </>
         )}
       </nav>
-      <div className={styles.actions}>
+      <div className="header-actions">
         {checked && session ? (
           <>
-            <span className={styles.user}>
+            <span className="signed-in-user">
               <small>Signed in as</small>
               <strong>
                 {session.role === "administrator"
@@ -103,16 +102,16 @@ export default function Header({ compact = false }: { compact?: boolean }) {
                   : session.name || session.username}
               </strong>
             </span>
-            <button className={styles.logout} type="button" onClick={logout}>
+            <button className="btn ghost" type="button" onClick={logout}>
               Log out
             </button>
           </>
         ) : checked ? (
           <>
-            <Link className={styles.login} href="/login/">
+            <Link className="btn ghost" href="/login/">
               Log in
             </Link>
-            <Link className={styles.create} href="/login/">
+            <Link className="btn primary small" href="/login/">
               Create account
             </Link>
           </>
