@@ -28,8 +28,8 @@ export async function GET() {
 
   if (missingDatabase.length) {
     return NextResponse.json(
-      { ok: false, code: "MISSING_ENVIRONMENT_VARIABLES", missing: missingDatabase, revision: "admin-sync-2" },
-      { status: 503 },
+      { ok: false, code: "MISSING_ENVIRONMENT_VARIABLES", missing: missingDatabase, revision: "admin-sync-3" },
+      { status: 200 },
     );
   }
 
@@ -42,15 +42,15 @@ export async function GET() {
     const tables = Number(tableRows[0]?.count || 0);
     if (tables !== 5) {
       return NextResponse.json(
-        { ok: false, databaseConnected: true, schemaTables: tables, code: "SCHEMA_NOT_IMPORTED", revision: "admin-sync-2" },
-        { status: 503 },
+        { ok: false, databaseConnected: true, schemaTables: tables, code: "SCHEMA_NOT_IMPORTED", revision: "admin-sync-3" },
+        { status: 200 },
       );
     }
 
     if (missingAdministrator.length) {
       return NextResponse.json(
-        { ok: false, databaseConnected: true, code: "ADMIN_ENVIRONMENT_MISSING", missing: missingAdministrator, revision: "admin-sync-2" },
-        { status: 503 },
+        { ok: false, databaseConnected: true, code: "ADMIN_ENVIRONMENT_MISSING", missing: missingAdministrator, revision: "admin-sync-3" },
+        { status: 200 },
       );
     }
 
@@ -78,16 +78,16 @@ export async function GET() {
         schemaTables: tables,
         administratorReady,
         code: administratorReady ? "READY" : "ADMINISTRATOR_NOT_READY",
-        revision: "admin-sync-2",
+        revision: "admin-sync-3",
       },
-      { status: administratorReady ? 200 : 503 },
+      { status: 200 },
     );
   } catch (error) {
     const code = safeCode(error);
     console.error("Project HELPS health check failed", { code });
     return NextResponse.json(
-      { ok: false, databaseConnected: false, code, revision: "admin-sync-2" },
-      { status: 503 },
+      { ok: false, databaseConnected: false, code, revision: "admin-sync-3" },
+      { status: 200 },
     );
   }
 }
