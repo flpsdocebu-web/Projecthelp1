@@ -49,7 +49,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <header className={compact ? "topbar compact" : "topbar"}>
+    <header className={compact ? "project-header compact" : "project-header"}>
       <Link className="brand" href="/home/">
         <img src="/project-helps-logo.png" alt="Project HELPS" />
         <span>
