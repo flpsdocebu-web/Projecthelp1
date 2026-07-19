@@ -1,11 +1,8 @@
+import { redirect } from "next/navigation";
+
 export default function LandingPortal() {
-  return (
-    <main style={{ width: "100%", height: "100dvh", overflow: "hidden", background: "#dff7f8" }}>
-      <iframe
-        src="/landing/index.html"
-        title="Flexible Learning Program Portal"
-        style={{ width: "100%", height: "100%", border: 0, display: "block" }}
-      />
-    </main>
-  );
+  // Serve the static portal directly. This avoids hydrating an unnecessary
+  // iframe wrapper and keeps the landing page available even if a cached
+  // Next.js client bundle belongs to an older Hostinger deployment.
+  redirect("/landing/index.html");
 }
