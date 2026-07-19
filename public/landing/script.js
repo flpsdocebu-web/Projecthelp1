@@ -1,5 +1,5 @@
 const destinations = {
-  helps: "/login/",
+  helps: "/home/",
   itrack: "#",
 };
 
