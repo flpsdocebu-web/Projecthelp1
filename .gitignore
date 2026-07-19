@@ -7,7 +7,6 @@ User Guides/
 node_modules/
 .next/
 out/
-public/project-helps-runtime.css
 
 # Local configuration and secrets
 .env

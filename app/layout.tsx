@@ -22,7 +22,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="en">
       <head>
-        <link rel="stylesheet" href="/project-helps-runtime.css?release=20260719-7" />
+        <link rel="preload" href="/project-helps-v8.css" as="style" />
+        <link rel="stylesheet" href="/project-helps-v8.css" />
       </head>
       <body>{children}</body>
     </html>
