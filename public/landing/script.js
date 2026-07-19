@@ -9,6 +9,7 @@ let noticeTimer;
 document.querySelectorAll("[data-program]").forEach((card) => {
   const destination = destinations[card.dataset.program];
   card.href = destination;
+  card.target = "_top";
 
   card.addEventListener("click", (event) => {
     if (destination !== "#") return;
