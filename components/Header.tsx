@@ -11,6 +11,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
   const [session, setSession] = useState<Session | null>(null);
   const [checked, setChecked] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     fetch("/api/auth/session", { cache: "no-store" })
@@ -20,8 +21,11 @@ export default function Header({ compact = false }: { compact?: boolean }) {
       .finally(() => setChecked(true));
   }, []);
 
+  useEffect(() => { setMobileOpen(false); }, [pathname]);
+
   function protectedNav(event: MouseEvent<HTMLAnchorElement>, destination: string, adminOnly = false) {
     event.preventDefault();
+    setMobileOpen(false);
     if (!session) {
       sessionStorage.setItem("helps_return_to", destination);
       router.push("/login1/");
@@ -50,13 +54,25 @@ export default function Header({ compact = false }: { compact?: boolean }) {
         <img src="/project-helps-logo.png" alt="Project HELPS" />
         <span><strong>Project HELPS</strong><small>SDO Cebu Province</small></span>
       </Link>
-      <nav>
+      <button className="mobile-menu-toggle" type="button" aria-label={mobileOpen ? "Close menu" : "Open menu"} aria-expanded={mobileOpen} onClick={() => setMobileOpen((value) => !value)}>
+        <span /><span /><span />
+      </button>
+      <nav className={mobileOpen ? "mobile-open" : ""}>
         <Link className={pathname.startsWith("/home") ? "active" : ""} href="/home1/" onClick={(event) => protectedNav(event, "/home1/")}>Home</Link>
         <Link className={pathname.startsWith("/library") ? "active" : ""} href="/library1/" onClick={(event) => protectedNav(event, "/library1/")}>Learning Resources</Link>
         {checked && session?.role === "administrator" && <>
           <Link className={pathname.startsWith("/dashboard") ? "active" : ""} href="/dashboard1/" onClick={(event) => protectedNav(event, "/dashboard1/", true)}>Dashboard</Link>
           <Link className={pathname.startsWith("/users") ? "active" : ""} href="/users/" onClick={(event) => protectedNav(event, "/users/", true)}>User Management</Link>
         </>}
+        <div className="mobile-account-actions">
+          {checked && session ? <>
+            <span><small>Signed in as</small><strong>{session.role === "administrator" ? "Administrator" : session.name || session.username}</strong></span>
+            <button type="button" onClick={logout}>Log out</button>
+          </> : checked ? <>
+            <Link href="/login1/">Log in</Link>
+            <Link className="mobile-create-account" href="/login1/">Create account</Link>
+          </> : null}
+        </div>
       </nav>
       <div className="header-actions">
         {checked && session ? <>
