@@ -14,6 +14,11 @@ import "./admin-loader.css";
 export const metadata: Metadata = {
   title: "Project HELPS | SDO Cebu Province",
   description: "Learning Activity Sheets for flexible, accessible learning.",
+  icons: {
+    icon: [{ url: "/project-helps-logo.png", type: "image/png" }],
+    shortcut: "/project-helps-logo.png",
+    apple: "/project-helps-logo.png",
+  },
 };
 
 // Hostinger must render HTML from the active build so it never points to
