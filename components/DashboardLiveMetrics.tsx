@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 type Month = { month: string; downloads: number; prints: number };
 type DistrictCount = { district: string; accounts: number; schools: number };
@@ -53,7 +53,7 @@ export default function DashboardLiveMetrics() {
         .catch(() => setData(empty));
 
     load();
-    const timer = window.setInterval(load, 180000);
+    const timer = window.setInterval(load, 30000);
     return () => window.clearInterval(timer);
   }, []);
 
@@ -75,6 +75,9 @@ export default function DashboardLiveMetrics() {
   );
 
   const maximum = Math.max(1, ...months.flatMap((month) => [month.downloads, month.prints]));
+  const districtMaximum = Math.max(1, ...data.districtCounts.map((district) => district.accounts));
+  const activeUsers = Math.max(1, data.students + data.teachers);
+  const districtColors = ["#238d67", "#1d73b7", "#8c55b4", "#e09a25", "#d85b62", "#2a9eae", "#6674c8", "#75a83e"];
   const stats = [
     { icon: "♙", label: "Student users", value: data.students, color: "blue" },
     { icon: "♟", label: "Teacher/School users", value: data.teachers, color: "green-bg" },
@@ -84,7 +87,7 @@ export default function DashboardLiveMetrics() {
 
   return (
     <>
-      <div className="live-badge"><i />Live MySQL data · refreshes every 3 minutes</div>
+      <div className="live-badge"><i />Live MySQL data · refreshes every 30 seconds</div>
       <div className="stat-grid">
         {stats.map((stat) => (
           <article key={stat.label}>
@@ -117,10 +120,15 @@ export default function DashboardLiveMetrics() {
               <p><i className="green-dot" /><span><strong>{data.districts} districts</strong><small>Centralized records</small></span></p>
               <p><i className="gold-dot" /><span><strong>{data.totalUsers} total users</strong><small>Students and school personnel</small></span></p>
             </div>
+            <div className="user-distribution-chart">
+              <strong>Registered users</strong>
+              <div><span>Students <b>{data.students}</b></span><i><em className="student-user-bar" style={{ width: `${(data.students / activeUsers) * 100}%` }} /></i></div>
+              <div><span>Teacher/School <b>{data.teachers}</b></span><i><em className="teacher-user-bar" style={{ width: `${(data.teachers / activeUsers) * 100}%` }} /></i></div>
+            </div>
             {data.districtCounts.length > 0 && (
               <div className="district-count-list">
                 <strong>Accounts by district</strong>
-                {data.districtCounts.map((district) => <div key={district.district}><span>{district.district}</span><b>{district.accounts}</b></div>)}
+                {data.districtCounts.map((district, index) => <div className="district-graph-row" key={district.district} style={{ "--district-color": districtColors[index % districtColors.length] } as CSSProperties}><span>{district.district}<i><em style={{ width: `${(district.accounts / districtMaximum) * 100}%` }} /></i></span><b>{district.accounts}</b></div>)}
               </div>
             )}
           </div>
