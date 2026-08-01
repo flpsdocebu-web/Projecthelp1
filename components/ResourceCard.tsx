@@ -16,6 +16,7 @@ export default function ResourceCard({ item }: { item: Resource }) {
   const [pages, setPages] = useState(item.pages);
   const [turning, setTurning] = useState<"next" | "previous" | "">("");
   const [viewerSize, setViewerSize] = useState(0);
+  const [zoom, setZoom] = useState(1);
   const [downloadUrl, setDownloadUrl] = useState("");
   const documentRef = useRef<PdfDocument | null>(null);
   const leftCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -144,6 +145,38 @@ export default function ResourceCard({ item }: { item: Resource }) {
   }, [preview]);
 
   useEffect(() => {
+    if (!preview) return;
+    setZoom(1);
+    const controls = document.createElement("div");
+    controls.className = "pdf-zoom-controls";
+    controls.setAttribute("role", "group");
+    controls.setAttribute("aria-label", "PDF zoom controls");
+    const output = document.createElement("span");
+    output.textContent = "100%";
+    const makeButton = (label: string, title: string, change: (value: number) => number) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = label;
+      button.title = title;
+      button.setAttribute("aria-label", title);
+      button.onclick = () => setZoom((value) => {
+        const next = change(value);
+        output.textContent = `${Math.round(next * 100)}%`;
+        return next;
+      });
+      return button;
+    };
+    controls.append(
+      makeButton("−", "Zoom out", (value) => Math.max(.75, value - .25)),
+      output,
+      makeButton("+", "Zoom in", (value) => Math.min(2.5, value + .25)),
+      makeButton("⌕", "Reset zoom", () => 1),
+    );
+    document.body.appendChild(controls);
+    return () => controls.remove();
+  }, [preview]);
+
+  useEffect(() => {
     if (!preview || !item.uploaded || !documentRef.current || !rightCanvasRef.current) return;
     let active = true;
     async function renderPage(pageNumber: number, canvas: HTMLCanvasElement | null, spread: boolean) {
@@ -153,7 +186,7 @@ export default function ResourceCard({ item }: { item: Resource }) {
       const totalWidth = Math.max(300, Math.min(1000, window.innerWidth - 180));
       const availableWidth = spread ? totalWidth / 2 : Math.min(880, totalWidth);
       const availableHeight = Math.max(330, window.innerHeight - 195);
-      const viewport = pdfPage.getViewport({ scale: Math.min(availableWidth / base.width, availableHeight / base.height) });
+      const viewport = pdfPage.getViewport({ scale: Math.min(availableWidth / base.width, availableHeight / base.height) * zoom });
       if (!active) return;
       canvas.width = Math.floor(viewport.width);
       canvas.height = Math.floor(viewport.height);
@@ -169,7 +202,7 @@ export default function ResourceCard({ item }: { item: Resource }) {
       }
     })();
     return () => { active = false; };
-  }, [preview, page, pages, item.uploaded, viewerSize]);
+  }, [preview, page, pages, item.uploaded, viewerSize, zoom]);
 
   function turn(direction: "next" | "previous") {
     const target = direction === "next" ? page + 1 : page - 1;
