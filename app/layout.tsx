@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import SiteFooter from "@/components/SiteFooter";
 import "./globals.css";
 import "./upload-modal.css";
 import "./resource-admin.css";
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: embeddedStyles }}
         />
       </head>
-      <body>{children}</body>
+      <body><div className="site-page-shell">{children}<SiteFooter /></div></body>
     </html>
   );
 }

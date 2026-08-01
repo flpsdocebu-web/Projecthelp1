@@ -43,7 +43,6 @@ export default function Home() {
       </section>
 
       <section className="cta"><div><span className="eyebrow">Join the learning community</span><h2>Ready to make learning more accessible?</h2><p>Create your free account and start exploring resources today.</p></div><div><Link className="btn white large" href="/login/">Create an account →</Link><small>Already registered? <Link href="/login/">Log in here</Link></small></div></section>
-      <footer><div className="brand footer-brand"><img src="/project-helps-logo.png" alt=""/><span><strong>Project HELPS</strong><small>SDO Cebu Province</small></span></div><p>Helping Every Learner Progress and Succeed.</p><div className="footer-details"><span>© 2026 Department of Education • Division of Cebu Province</span><span>Project HELPS Website developed by: <a href="https://www.facebook.com/dan.rey0888" target="_blank" rel="noopener noreferrer">DANIEL P. REYES</a></span></div></footer>
     </main>
   );
 }
