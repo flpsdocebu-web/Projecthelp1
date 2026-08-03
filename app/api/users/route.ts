@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdministrator, bcrypt, randomUUID } from "@/lib/auth";
 import { db } from "@/lib/db";
 export async function GET() { if (!await requireAdministrator())
-    return NextResponse.json({ error: "Administrator access required." }, { status: 403 }); const [rows] = await db.query<any[]>(`SELECT u.id,u.username,u.email,u.full_name AS name,u.role,COALESCE(u.district,(SELECT s.district FROM users s WHERE s.role='school' AND s.school_name=u.school_name AND s.district IS NOT NULL LIMIT 1)) district,u.school_name AS schoolName,u.school_id AS schoolId,u.lrn,u.suspended,u.created_at AS createdAt FROM users u ORDER BY u.role,district,u.full_name`); return NextResponse.json({ users: rows }); }
+    return NextResponse.json({ error: "Administrator access required." }, { status: 403 }); const [rows] = await db.query<any[]>(`SELECT u.id,u.username,u.email,u.full_name AS name,u.role,COALESCE(u.district,(SELECT s.district FROM users s WHERE s.role='school' AND s.school_name=u.school_name AND s.district IS NOT NULL LIMIT 1)) district,u.school_name AS schoolName,u.school_id AS schoolId,u.lrn,u.suspended,u.created_at AS createdAt,EXISTS(SELECT 1 FROM sessions active_session WHERE active_session.user_id=u.id AND active_session.expires_at>NOW() AND active_session.created_at>=DATE_SUB(NOW(),INTERVAL 90 SECOND)) AS online FROM users u ORDER BY u.role,district,u.full_name`); return NextResponse.json({ users: rows }); }
 export async function POST(request: Request) { if (!await requireAdministrator())
     return NextResponse.json({ error: "Administrator access required." }, { status: 403 }); try {
     const b = await request.json();

@@ -15,6 +15,7 @@ type User = {
   schoolId?: string;
   lrn?: string;
   suspended: boolean;
+  online: boolean;
   createdAt?: string;
 };
 
@@ -40,7 +41,11 @@ export default function Users() {
     }
   }, []);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+    const refresh = window.setInterval(load, 30_000);
+    return () => window.clearInterval(refresh);
+  }, [load]);
 
   async function action(body: Record<string, unknown>, method = "PATCH") {
     const key = String(body.id || "action");
@@ -100,7 +105,7 @@ export default function Users() {
                 <td>{user.username}</td><td>{user.email}</td>
                 <td>{user.schoolName || "—"}{user.schoolId && <small className="account-detail">ID: {user.schoolId}</small>}</td>
                 <td><time dateTime={user.createdAt}>{created(user.createdAt)}</time></td>
-                <td><span className={`account-status ${user.suspended ? "suspended" : "active"}`}>{user.suspended ? "Suspended" : "Active"}</span></td>
+                <td><span className={`presence-status ${user.online && !user.suspended ? "online" : "offline"}`}><i/>{user.online && !user.suspended ? "Online" : "Offline"}</span><span className={`account-status ${user.suspended ? "suspended" : "active"}`}>{user.suspended ? "Suspended" : "Active"}</span></td>
                 <td><div className="user-actions">
                   <button type="button" disabled={busy === user.id} onClick={() => { const password = prompt("Enter a new password (minimum 8 characters)"); if (password) void action({ id: user.id, action: "reset", password }); }}>Reset</button>
                   <button className="suspend" type="button" disabled={busy === user.id} onClick={() => void action({ id: user.id, action: "suspend", suspended: !user.suspended })}>{user.suspended ? "Activate" : "Suspend"}</button>
@@ -113,7 +118,7 @@ export default function Users() {
   }
 
   return <AdminGuard><main className="dashboard user-management"><Header compact/><section className="user-shell">
-    <div className="user-page-head"><span className="eyebrow green">Administration</span><h1>User Management</h1><p>Centralized MySQL accounts and access controls.</p></div>
+    <div className="user-page-head"><div><span className="eyebrow green">Administration</span><h1>User Management</h1><p>Centralized MySQL accounts and access controls.</p></div><div className="online-user-total"><i/><span><strong>{users.filter((user) => user.online && !user.suspended).length}</strong><small>Users online</small></span></div></div>
     {message && <p className={`user-message ${isError ? "error" : ""}`} role="status">{message}</p>}
     <section className="personnel-create"><div><span className="eyebrow green">Administrator access</span><h2>Create Division Personnel</h2><p>Create an administrator account for authorized division personnel.</p></div><form onSubmit={create}>
       <label>Name<input name="name" autoComplete="name" required/></label><label>Email<input name="email" type="email" autoComplete="email" required/></label><label>Username<input name="username" autoComplete="username" required/></label><label>Password<input name="password" type="password" minLength={8} autoComplete="new-password" required/></label><button type="submit" disabled={busy === "create"}>{busy === "create" ? "Creating…" : "Create administrator"}</button>

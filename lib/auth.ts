@@ -41,6 +41,7 @@ export async function currentUser():Promise<SessionUser|null>{
   const token=(await cookies()).get(COOKIE)?.value; if(!token)return null;
   const [rows]=await db.query<any[]>(`SELECT u.id,u.username,u.email,u.full_name,u.role,u.suspended FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>NOW() LIMIT 1`,[tokenHash(token)]);
   const row=rows[0]; if(!row||row.suspended)return null;
+  await db.execute("UPDATE sessions SET created_at=NOW() WHERE token_hash=? AND created_at<DATE_SUB(NOW(),INTERVAL 30 SECOND)",[tokenHash(token)]);
   return {id:row.id,username:row.username,email:row.email,name:row.full_name,role:row.role};
 }
 

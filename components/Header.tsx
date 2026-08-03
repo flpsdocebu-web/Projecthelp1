@@ -14,11 +14,14 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    fetch("/api/auth/session", { cache: "no-store" })
+    const checkSession = () => fetch("/api/auth/session", { cache: "no-store" })
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((data) => setSession(data.user || null))
       .catch(() => setSession(null))
       .finally(() => setChecked(true));
+    void checkSession();
+    const heartbeat = window.setInterval(checkSession, 60_000);
+    return () => window.clearInterval(heartbeat);
   }, []);
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
