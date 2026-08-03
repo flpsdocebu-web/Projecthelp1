@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import Header from "@/components/Header";
+import { normalizedDistrict } from "@/lib/district";
 
 type User = {
   id: string;
@@ -19,18 +20,12 @@ type User = {
   createdAt?: string;
 };
 
-function normalizedDistrict(value: string | undefined, role: User["role"]) {
+function accountDistrict(value: string | undefined, role: User["role"]) {
   if (!value?.trim()) {
     const label = role === "administrator" ? "Division-wide" : "District not specified";
     return { key: label.toUpperCase(), label };
   }
-  let key = value.normalize("NFKC").trim().toUpperCase()
-    .replace(/^DISTRICT\s+OF\s+/, "")
-    .replace(/([A-Z])([0-9])$/g, "$1 $2")
-    .replace(/\s+/g, " ");
-  key = key.replace(/\s+II$/i, " 2").replace(/\s+I$/i, " 1");
-  const label = key.toLowerCase().replace(/(^|\s)([a-z])/g, (_, space, letter) => `${space}${letter.toUpperCase()}`);
-  return { key, label };
+  return normalizedDistrict(value);
 }
 
 export default function Users() {
@@ -101,7 +96,7 @@ export default function Users() {
   function accountTable(title: string, description: string, role: User["role"]) {
     const rows = users.filter((user) => user.role === role);
     const grouped = Array.from(rows.reduce((map, user) => {
-      const district = normalizedDistrict(user.district, role);
+      const district = accountDistrict(user.district, role);
       const current = map.get(district.key) || { label: district.label, users: [] };
       map.set(district.key, { label: current.label, users: [...current.users, user] });
       return map;
