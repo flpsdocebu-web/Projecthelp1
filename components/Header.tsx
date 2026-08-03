@@ -26,6 +26,34 @@ export default function Header({ compact = false }: { compact?: boolean }) {
 
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
+  useEffect(() => {
+    if (!session) return;
+    const idleLimit = 10 * 60 * 1000;
+    let idleTimer = 0;
+    let lastReset = 0;
+    const expireSession = async () => {
+      try { await fetch("/api/auth/logout", { method: "POST", cache: "no-store" }); } finally {
+        sessionStorage.removeItem("helps_return_to");
+        sessionStorage.setItem("helps_logout_reason", "idle");
+        window.location.replace("/login1/");
+      }
+    };
+    const resetIdleTimer = () => {
+      const now = Date.now();
+      if (now - lastReset < 1000) return;
+      lastReset = now;
+      window.clearTimeout(idleTimer);
+      idleTimer = window.setTimeout(expireSession, idleLimit);
+    };
+    const activityEvents = ["pointerdown", "pointermove", "keydown", "scroll", "touchstart"];
+    activityEvents.forEach((eventName) => window.addEventListener(eventName, resetIdleTimer, { passive: true }));
+    resetIdleTimer();
+    return () => {
+      window.clearTimeout(idleTimer);
+      activityEvents.forEach((eventName) => window.removeEventListener(eventName, resetIdleTimer));
+    };
+  }, [session]);
+
   function protectedNav(event: MouseEvent<HTMLAnchorElement>, destination: string, adminOnly = false) {
     event.preventDefault();
     setMobileOpen(false);
