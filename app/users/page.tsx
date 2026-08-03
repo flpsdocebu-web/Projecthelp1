@@ -19,6 +19,20 @@ type User = {
   createdAt?: string;
 };
 
+function normalizedDistrict(value: string | undefined, role: User["role"]) {
+  if (!value?.trim()) {
+    const label = role === "administrator" ? "Division-wide" : "District not specified";
+    return { key: label.toUpperCase(), label };
+  }
+  let key = value.normalize("NFKC").trim().toUpperCase()
+    .replace(/^DISTRICT\s+OF\s+/, "")
+    .replace(/([A-Z])([0-9])$/g, "$1 $2")
+    .replace(/\s+/g, " ");
+  key = key.replace(/\s+II$/i, " 2").replace(/\s+I$/i, " 1");
+  const label = key.toLowerCase().replace(/(^|\s)([a-z])/g, (_, space, letter) => `${space}${letter.toUpperCase()}`);
+  return { key, label };
+}
+
 export default function Users() {
   const [users, setUsers] = useState<User[]>([]);
   const [message, setMessage] = useState("");
@@ -87,20 +101,21 @@ export default function Users() {
   function accountTable(title: string, description: string, role: User["role"]) {
     const rows = users.filter((user) => user.role === role);
     const grouped = Array.from(rows.reduce((map, user) => {
-      const district = user.district || (role === "administrator" ? "Division-wide" : "District not specified");
-      map.set(district, [...(map.get(district) || []), user]);
+      const district = normalizedDistrict(user.district, role);
+      const current = map.get(district.key) || { label: district.label, users: [] };
+      map.set(district.key, { label: current.label, users: [...current.users, user] });
       return map;
-    }, new Map<string, User[]>())).sort(([a], [b]) => a.localeCompare(b));
+    }, new Map<string, { label: string; users: User[] }>())).sort(([, a], [, b]) => a.label.localeCompare(b.label));
     const created = (value?: string) => value ? new Date(value).toLocaleString("en-PH", { dateStyle: "medium", timeStyle: "short" }) : "—";
 
     return <section className="user-table-card">
       <header><div><h2>{title}</h2><p>{description}</p></div><strong aria-label={`${rows.length} accounts`}>{rows.length}</strong></header>
       {rows.length === 0 ? <div className="user-table-empty">{loading ? "Loading accounts…" : `No ${title.toLowerCase()} found.`}</div> :
-        <div className="district-account-groups">{grouped.map(([district, districtRows]) =>
-          <section className="district-account-container" key={district}>
-            <header><div><small>District</small><h3>{district}</h3></div><strong>{districtRows.length} account{districtRows.length === 1 ? "" : "s"}</strong></header>
+        <div className="district-account-groups">{grouped.map(([districtKey, district]) =>
+          <section className="district-account-container" key={districtKey}>
+            <header><div><small>District</small><h3>{district.label}</h3></div><strong>{district.users.length} account{district.users.length === 1 ? "" : "s"}</strong></header>
             <div className="user-table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>School</th><th>Date and time created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
-              {districtRows.map((user) => <tr key={user.id}>
+              {district.users.map((user) => <tr key={user.id}>
                 <td><strong>{user.name || "—"}</strong>{user.lrn && <small className="account-detail">LRN: {user.lrn}</small>}</td>
                 <td>{user.username}</td><td>{user.email}</td>
                 <td>{user.schoolName || "—"}{user.schoolId && <small className="account-detail">ID: {user.schoolId}</small>}</td>
