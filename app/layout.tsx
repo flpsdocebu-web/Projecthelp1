@@ -5,6 +5,7 @@ import SiteFooter from "@/components/SiteFooter";
 import "./globals.css";
 import "./upload-modal.css";
 import "./resource-admin.css";
+import "./resource-term-admin.css";
 import "./report-modal.css";
 import "./typography-enhancements.css";
 import "./home-stats.css";
