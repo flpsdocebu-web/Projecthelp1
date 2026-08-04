@@ -9,6 +9,8 @@ export const CEBU_DISTRICTS = [
   "San Remigio I", "San Remigio II", "Santa Fe", "Tabogon", "Tabuelan",
 ] as const;
 
+export const CEBU_DISTRICTS_ALPHABETICAL = [...CEBU_DISTRICTS].sort((a, b) => a.localeCompare(b));
+
 function comparisonKey(value: string) {
   let key = value.normalize("NFKC").trim().toUpperCase()
     .replace(/^DISTRICT\s+OF\s+/, "")
