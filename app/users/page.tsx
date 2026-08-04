@@ -3,6 +3,7 @@
 import { FormEvent, useCallback, useEffect, useState } from "react";
 import AdminGuard from "@/components/AdminGuard";
 import Header from "@/components/Header";
+import ExportUsersExcel from "@/components/ExportUsersExcel";
 import { normalizedDistrict } from "@/lib/district";
 
 type User = {
@@ -128,7 +129,7 @@ export default function Users() {
   }
 
   return <AdminGuard><main className="dashboard user-management"><Header compact/><section className="user-shell">
-    <div className="user-page-head"><div><span className="eyebrow green">Administration</span><h1>User Management</h1><p>Centralized MySQL accounts and access controls.</p></div><div className="online-user-total"><i/><span><strong>{users.filter((user) => user.online && !user.suspended).length}</strong><small>Users online</small></span></div></div>
+    <div className="user-page-head"><div><span className="eyebrow green">Administration</span><h1>User Management</h1><p>Centralized MySQL accounts and access controls.</p></div><div className="user-page-actions"><ExportUsersExcel users={users}/><div className="online-user-total"><i/><span><strong>{users.filter((user) => user.online && !user.suspended).length}</strong><small>Users online</small></span></div></div></div>
     {message && <p className={`user-message ${isError ? "error" : ""}`} role="status">{message}</p>}
     <section className="personnel-create"><div><span className="eyebrow green">Administrator access</span><h2>Create Division Personnel</h2><p>Create an administrator account for authorized division personnel.</p></div><form onSubmit={create}>
       <label>Name<input name="name" autoComplete="name" required/></label><label>Email<input name="email" type="email" autoComplete="email" required/></label><label>Username<input name="username" autoComplete="username" required/></label><label>Password<input name="password" type="password" minLength={8} autoComplete="new-password" required/></label><button type="submit" disabled={busy === "create"}>{busy === "create" ? "Creating…" : "Create administrator"}</button>
