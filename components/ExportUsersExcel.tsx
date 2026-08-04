@@ -18,7 +18,7 @@ type ReportUser = {
   createdAt?: string;
 };
 
-export default function ExportUsersExcel({ users }: { users: ReportUser[] }) {
+export default function ExportUsersExcel({ users, districtName, compact = false }: { users: ReportUser[]; districtName?: string; compact?: boolean }) {
   const [exporting, setExporting] = useState(false);
 
   async function exportReport() {
@@ -28,7 +28,7 @@ export default function ExportUsersExcel({ users }: { users: ReportUser[] }) {
       const workbook = new ExcelJS.Workbook();
       workbook.creator = "Project HELPS Website";
       workbook.created = new Date();
-      const sheet = workbook.addWorksheet("User Management Report", {
+      const sheet = workbook.addWorksheet(districtName ? "District User Report" : "User Management Report", {
         pageSetup: { orientation: "landscape", paperSize: 9, fitToPage: true, fitToWidth: 1, fitToHeight: 0 },
         views: [{ showGridLines: false, state: "frozen", ySplit: 15 }],
       });
@@ -44,7 +44,7 @@ export default function ExportUsersExcel({ users }: { users: ReportUser[] }) {
       merge(7, "Region VII – Central Visayas");
       merge(8, "Schools Division of Cebu Province");
       merge(9, "IPHO Bldg, Sudlon, Lahug, Cebu City");
-      merge(11, "PROJECT HELPS USER MANAGEMENT REPORT");
+      merge(11, districtName ? `PROJECT HELPS ${districtName.toUpperCase()} DISTRICT ACCOUNT REPORT` : "PROJECT HELPS USER MANAGEMENT REPORT");
       merge(12, "Note: Generated data from Project Helps Website");
       sheet.getCell("A11").font = { name: "Bookman Old Style", size: 14, bold: true };
       sheet.getCell("A12").font = { name: "Bookman Old Style", size: 11, italic: true };
@@ -85,12 +85,13 @@ export default function ExportUsersExcel({ users }: { users: ReportUser[] }) {
         { width: 31 }, { width: 19 }, { width: 17 }, { width: 15 }, { width: 24 },
       ];
       sheet.pageSetup.printArea = `A1:${lastColumn}${Math.max(14, 14 + users.length)}`;
-      sheet.headerFooter.oddFooter = "&CProject HELPS User Management Report&RPage &P of &N";
+      sheet.headerFooter.oddFooter = `&CProject HELPS ${districtName ? `${districtName} District` : "User Management"} Report&RPage &P of &N`;
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([new Uint8Array(buffer)], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = `Project-HELPS-User-Management-Report-${new Date().toISOString().slice(0, 10)}.xlsx`;
+      const reportName = districtName ? `${districtName.replace(/[^a-z0-9]+/gi, "-")}-District-Accounts` : "User-Management-Report";
+      link.download = `Project-HELPS-${reportName}-${new Date().toISOString().slice(0, 10)}.xlsx`;
       link.click();
       URL.revokeObjectURL(link.href);
     } finally {
@@ -98,5 +99,5 @@ export default function ExportUsersExcel({ users }: { users: ReportUser[] }) {
     }
   }
 
-  return <button className="export-excel-button" type="button" onClick={exportReport} disabled={exporting || users.length === 0} aria-label="Export User Management report to Excel"><span aria-hidden="true">X</span>{exporting ? "Preparing report…" : "Export Excel"}</button>;
+  return <button className={`export-excel-button ${compact ? "compact" : ""}`} type="button" onClick={exportReport} disabled={exporting || users.length === 0} aria-label={districtName ? `Export ${districtName} district accounts to Excel` : "Export User Management report to Excel"}><span aria-hidden="true">X</span>{!compact && (exporting ? "Preparing report…" : "Export Excel")}</button>;
 }

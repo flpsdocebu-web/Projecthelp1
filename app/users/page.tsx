@@ -109,7 +109,7 @@ export default function Users() {
       {rows.length === 0 ? <div className="user-table-empty">{loading ? "Loading accounts…" : `No ${title.toLowerCase()} found.`}</div> :
         <div className="district-account-groups">{grouped.map(([districtKey, district]) =>
           <section className="district-account-container" key={districtKey}>
-            <header><div><small>District</small><h3>{district.label}</h3></div><strong>{district.users.length} account{district.users.length === 1 ? "" : "s"}</strong></header>
+            <header><div><small>District</small><h3>{district.label}</h3></div><span className="district-header-actions"><strong>{district.users.length} account{district.users.length === 1 ? "" : "s"}</strong><ExportUsersExcel users={district.users} districtName={district.label} compact/></span></header>
             <div className="user-table-wrap"><table><thead><tr><th>Name</th><th>Username</th><th>Email</th><th>School</th><th>Date and time created</th><th>Status</th><th>Actions</th></tr></thead><tbody>
               {district.users.map((user) => <tr key={user.id}>
                 <td><strong>{user.name || "—"}</strong>{user.lrn && <small className="account-detail">LRN: {user.lrn}</small>}</td>
