@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "@/components/Header";
 import ResourceCard from "@/components/ResourceCard";
+import AccountGreeting from "@/components/AccountGreeting";
 
 type LibraryResource = { id?: string; grade: string; subject: string; title: string; pages: number; color: string; uploaded?: boolean; term?: string };
 type UploadRecord = { id: string; title: string; learningArea: string; gradeLevel: string; term: string; fileName: string };
@@ -56,7 +57,7 @@ export default function Library() {
 
   function clearFilters() { setQuery(""); setSubject("All subjects"); setGrade("All grade levels"); setTerm("All terms"); }
 
-  return <main className="subpage"><Header compact/>
+  return <main className="subpage"><Header compact/><AccountGreeting/>
     <section className="library-hero"><span className="eyebrow green">Resource library</span><h1>Find the right Learning Activity Sheet</h1><p>Browse resources arranged clearly by learning area and term.</p><div className="search-box"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search for a topic, grade, term, or keyword..."/></div></section>
     <section className="library-content">
       <aside><strong>Filter resources</strong><label>Learning area<select value={subject} onChange={(event) => setSubject(event.target.value)}>{subjects.map((option) => <option key={option}>{option}</option>)}</select></label><label>Grade level<select value={grade} onChange={(event) => setGrade(event.target.value)}>{grades.map((option) => <option key={option}>{option}</option>)}</select></label><label>Term<select value={term} onChange={(event) => setTerm(event.target.value)}><option>All terms</option>{termOrder.map((option) => <option key={option}>{option}</option>)}</select></label><button className="btn soft" onClick={clearFilters}>Clear filters</button></aside>

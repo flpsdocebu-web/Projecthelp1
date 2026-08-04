@@ -12,6 +12,7 @@ import "./home-stats.css";
 import "./user-management.css";
 import "./admin-loader.css";
 import "./activity-report.css";
+import "./account-greeting.css";
 
 export const metadata: Metadata = {
   title: "Project HELPS | SDO Cebu Province",
