@@ -1,6 +1,6 @@
 const destinations = {
   helps: "/login1/",
-  itrack: "#",
+  itrack: "https://itrack.sdocebuprovince.com/",
 };
 
 const notice = document.querySelector(".notice");
