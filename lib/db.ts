@@ -12,6 +12,17 @@ const configuredPort = Number(environmentValue("DB_PORT") || 3306);
 const databasePort = Number.isInteger(configuredPort) && configuredPort > 0 && configuredPort <= 65535
   ? configuredPort
   : 3306;
+const positiveInteger = (key:string, fallback:number, maximum:number) => {
+  const configured = Number(environmentValue(key));
+  return Number.isInteger(configured) && configured > 0 ? Math.min(configured, maximum) : fallback;
+};
+export const databasePoolConfig = {
+  connectionLimit: positiveInteger("DB_POOL_LIMIT", 25, 100),
+  maxIdle: positiveInteger("DB_POOL_MAX_IDLE", 10, 100),
+  queueLimit: positiveInteger("DB_POOL_QUEUE_LIMIT", 1000, 10000),
+  connectTimeout: positiveInteger("DB_CONNECT_TIMEOUT_MS", 5000, 30000),
+  idleTimeout: positiveInteger("DB_POOL_IDLE_TIMEOUT_MS", 60000, 600000),
+};
 export const databaseConfig = {
   host: environmentValue("DB_HOST"),
   port: databasePort,
@@ -28,9 +39,13 @@ export const db = globalForDb.helpsPool ?? mysql.createPool({
   user: databaseConfig.user,
   password: databaseConfig.password,
   ssl: environmentValue("DB_SSL").toLowerCase() === "true" ? { rejectUnauthorized: true } : undefined,
-  connectionLimit: 10,
-  connectTimeout: 8000,
+  connectionLimit: databasePoolConfig.connectionLimit,
+  maxIdle: Math.min(databasePoolConfig.maxIdle, databasePoolConfig.connectionLimit),
+  queueLimit: databasePoolConfig.queueLimit,
+  connectTimeout: databasePoolConfig.connectTimeout,
+  idleTimeout: databasePoolConfig.idleTimeout,
   waitForConnections: true,
   enableKeepAlive: true,
+  keepAliveInitialDelay: 0,
 });
-if (process.env.NODE_ENV !== "production") globalForDb.helpsPool = db;
+globalForDb.helpsPool = db;
