@@ -38,10 +38,16 @@ installButton.addEventListener("click", async () => {
     installPrompt = undefined;
     return;
   }
-  const isMac = navigator.userAgent.toLowerCase().includes("mac");
-  showNotice(isMac
-    ? "On Mac: open in Safari, choose Share, then Add to Dock."
-    : "On Windows: open the browser menu, choose Apps, then Install this site as an app. Afterward, pin it to the taskbar.");
+  const agent = navigator.userAgent.toLowerCase();
+  if (/iphone|ipad|ipod/.test(agent)) {
+    showNotice("On iPhone or iPad: open this website in Safari, tap Share, then tap Add to Home Screen.");
+  } else if (/android/.test(agent)) {
+    showNotice("On Android: open the browser menu, then tap Install app or Add to Home screen.");
+  } else if (agent.includes("mac")) {
+    showNotice("On Mac: open in Safari, choose Share, then Add to Dock.");
+  } else {
+    showNotice("On Windows: open the browser menu, choose Apps, then Install this site as an app. Afterward, pin it to the taskbar.");
+  }
 });
 
 document.querySelectorAll("[data-program]").forEach((card) => {

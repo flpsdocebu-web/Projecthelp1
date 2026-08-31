@@ -7,9 +7,19 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-const manualInstallMessage = () => navigator.userAgent.toLowerCase().includes("mac")
-  ? "On Mac: open this website in Safari, choose Share, then Add to Dock."
-  : "On Windows: open the browser menu, choose Apps, then Install this site as an app. After installation, right-click the app icon and choose Pin to taskbar.";
+const manualInstallMessage = () => {
+  const agent = navigator.userAgent.toLowerCase();
+  if (/iphone|ipad|ipod/.test(agent)) {
+    return "On iPhone or iPad: open this website in Safari, tap Share, then tap Add to Home Screen.";
+  }
+  if (/android/.test(agent)) {
+    return "On Android: open the browser menu, then tap Install app or Add to Home screen.";
+  }
+  if (agent.includes("mac")) {
+    return "On Mac: open this website in Safari, choose Share, then Add to Dock.";
+  }
+  return "On Windows: open the browser menu, choose Apps, then Install this site as an app. After installation, right-click the app icon and choose Pin to taskbar.";
+};
 
 export default function InstallAppButton() {
   const [installPrompt, setInstallPrompt] = useState<InstallPromptEvent | null>(null);

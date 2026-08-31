@@ -15,13 +15,19 @@ import "./activity-report.css";
 import "./account-greeting.css";
 
 export const metadata: Metadata = {
-  title: "Project HELPS | SDO Cebu Province",
-  description: "Learning Activity Sheets for flexible, accessible learning.",
+  title: "Flexible Learning Program | SDO Cebu Province",
+  description: "Flexible Learning Program of SDO Cebu Province – Project HELPS learning resources and services.",
   manifest: "/manifest.webmanifest",
+  applicationName: "Flexible Learning Program of SDO Cebu Province",
+  appleWebApp: {
+    capable: true,
+    title: "FLP SDO Cebu",
+    statusBarStyle: "default",
+  },
   icons: {
-    icon: [{ url: "/project-helps-logo.png", type: "image/png" }],
-    shortcut: "/project-helps-logo.png",
-    apple: "/project-helps-logo.png",
+    icon: [{ url: "/pwa-icon-192.png", type: "image/png" }],
+    shortcut: "/pwa-icon-192.png",
+    apple: "/apple-touch-icon.png",
   },
 };
 
