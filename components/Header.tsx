@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { MouseEvent, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
+import InstallAppButton from "@/components/InstallAppButton";
 
 type Session = { username: string; name: string; role: "administrator" | "school" | "student" };
 
@@ -106,6 +107,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
         </div>
       </nav>
       <div className="header-actions">
+        <InstallAppButton />
         {checked && session ? <>
           <span className="signed-in-user"><small>Signed in as</small><strong>{session.role === "administrator" ? "Administrator" : session.name || session.username}</strong></span>
           <button className="btn ghost" type="button" onClick={logout}>Log out</button>

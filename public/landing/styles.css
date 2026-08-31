@@ -107,6 +107,28 @@ body {
 .brand-copy h1 span:last-child { margin-top: 2px; font-size: 1.35em; font-weight: 900; letter-spacing: 0.015em; text-shadow: none; }
 .brand-copy .office-address { margin-top: 4px; color: #d9ffe8; font-family: "Poppins", Arial, sans-serif; font-size: clamp(13px, 1.35vw, 18px); font-weight: 700; letter-spacing: .02em; text-transform: uppercase; }
 
+.install-app-button {
+  margin-left: auto;
+  padding: 11px 17px;
+  border: 1px solid rgba(255, 255, 255, 0.58);
+  border-radius: 11px;
+  color: #087d91;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 10px 24px rgba(4, 65, 83, 0.2);
+  cursor: pointer;
+  font-family: "Montserrat", sans-serif;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.install-app-button:hover,
+.install-app-button:focus-visible {
+  color: #fff;
+  background: #087d91;
+  outline: 3px solid rgba(255, 255, 255, 0.32);
+}
+
 main {
   align-self: center;
   width: min(1080px, calc(100% - 48px));
@@ -375,6 +397,7 @@ footer {
 
   .brand-copy h1 { font-size: clamp(12px, 3vw, 17px); }
   .brand-copy .office-address { font-size: 9px; }
+  .install-app-button { padding: 9px 11px; font-size: 11px; }
 
   main {
     padding-top: 22px;
@@ -436,6 +459,7 @@ footer {
   .brand-copy h1 { font-size: 11px; }
   .brand-copy h1 span:last-child { font-size: 1.2em; }
   .brand-copy .office-address { font-size: 8px; }
+  .install-app-button { position: absolute; top: 10px; right: 10px; padding: 8px 10px; }
   main { width: calc(100% - 24px); }
   .program-heading { flex-direction: column; gap: 8px; }
   .flp-logo { width: 112px; height: 112px; }

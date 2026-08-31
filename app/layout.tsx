@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import SiteFooter from "@/components/SiteFooter";
@@ -17,12 +17,15 @@ import "./account-greeting.css";
 export const metadata: Metadata = {
   title: "Project HELPS | SDO Cebu Province",
   description: "Learning Activity Sheets for flexible, accessible learning.",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [{ url: "/project-helps-logo.png", type: "image/png" }],
     shortcut: "/project-helps-logo.png",
     apple: "/project-helps-logo.png",
   },
 };
+
+export const viewport: Viewport = { themeColor: "#087d91" };
 
 // Hostinger must render HTML from the active build so it never points to
 // stylesheet chunks that belonged to an older deployment.
