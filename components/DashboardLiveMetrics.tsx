@@ -28,6 +28,12 @@ const empty: Data = {
   districtCounts: [],
 };
 
+const DIVISION_TOTALS = { districts: 58, schools: 1144 } as const;
+
+function reachPercentage(value: number, total: number) {
+  return Math.min(100, Math.max(0, (value / total) * 100));
+}
+
 function normalize(payload: Partial<Data> | null | undefined): Data {
   return {
     students: Number(payload?.students || 0),
@@ -77,6 +83,8 @@ export default function DashboardLiveMetrics() {
   const maximum = Math.max(1, ...months.flatMap((month) => [month.downloads, month.prints]));
   const districtMaximum = Math.max(1, ...data.districtCounts.map((district) => district.accounts));
   const activeUsers = Math.max(1, data.students + data.teachers);
+  const schoolPercentage = reachPercentage(data.schools, DIVISION_TOTALS.schools);
+  const districtPercentage = reachPercentage(data.districts, DIVISION_TOTALS.districts);
   const districtColors = ["#238d67", "#1d73b7", "#8c55b4", "#e09a25", "#d85b62", "#2a9eae", "#6674c8", "#75a83e"];
   const stats = [
     { icon: "♙", label: "Student users", value: data.students, color: "blue" },
@@ -113,13 +121,25 @@ export default function DashboardLiveMetrics() {
           </div>
         </article>
         <article className="panel reach-panel">
-          <div className="panel-head"><div><strong>Program reach</strong><span>Registered school accounts</span></div></div>
+          <div className="panel-head"><div><strong>Program reach</strong><span>Coverage across DepEd Cebu Province</span></div></div>
           <div className="reach">
-            <div className={`ring ${data.schools ? "" : "reset-ring"}`}><span><strong>{data.schools}</strong><small>Schools</small></span></div>
-            <div>
-              <p><i className="green-dot" /><span><strong>{data.districts} districts</strong><small>Centralized records</small></span></p>
-              <p><i className="gold-dot" /><span><strong>{data.totalUsers} total users</strong><small>Students and school personnel</small></span></p>
+            <div className="reach-donuts">
+              <div className="reach-donut-card">
+                <div className="ring schools-ring" role="img" aria-label={`${schoolPercentage.toFixed(1)}% of schools registered`} style={{ "--reach-percent": `${schoolPercentage}%` } as CSSProperties}>
+                  <span><strong>{schoolPercentage.toFixed(1)}%</strong><small>Schools</small></span>
+                </div>
+                <b>{data.schools.toLocaleString()} / {DIVISION_TOTALS.schools.toLocaleString()}</b>
+                <small>registered schools</small>
+              </div>
+              <div className="reach-donut-card">
+                <div className="ring districts-ring" role="img" aria-label={`${districtPercentage.toFixed(1)}% of districts registered`} style={{ "--reach-percent": `${districtPercentage}%` } as CSSProperties}>
+                  <span><strong>{districtPercentage.toFixed(1)}%</strong><small>Districts</small></span>
+                </div>
+                <b>{data.districts.toLocaleString()} / {DIVISION_TOTALS.districts}</b>
+                <small>registered districts</small>
+              </div>
             </div>
+            <p className="reach-users"><i className="gold-dot" /><span><strong>{data.totalUsers.toLocaleString()} total users</strong><small>Students and school personnel</small></span></p>
             <div className="user-distribution-chart">
               <strong>Registered users</strong>
               <div><span>Students <b>{data.students}</b></span><i><em className="student-user-bar" style={{ width: `${(data.students / activeUsers) * 100}%` }} /></i></div>

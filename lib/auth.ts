@@ -6,8 +6,16 @@ import { db } from "@/lib/db";
 export type SessionUser = { id:string; username:string; name:string; email:string; role:"administrator"|"school"|"student" };
 const COOKIE = "project_helps_session";
 const tokenHash = (token:string) => createHash("sha256").update(token).digest("hex");
+const globalForAuth = globalThis as unknown as {
+  helpsAdminBootstrap?: { completedAt:number; promise?:Promise<void> };
+};
+const adminBootstrap = globalForAuth.helpsAdminBootstrap ?? { completedAt: 0 };
+globalForAuth.helpsAdminBootstrap = adminBootstrap;
 
 export async function ensurePrimaryAdmin(){
+  if(Date.now()-adminBootstrap.completedAt<60_000)return;
+  if(adminBootstrap.promise)return adminBootstrap.promise;
+  adminBootstrap.promise=(async()=>{
   const username=process.env.ADMIN_USERNAME?.trim(), password=process.env.ADMIN_PASSWORD, email=process.env.ADMIN_EMAIL?.trim();
   if(!username||!password||!email)return;
   const [rows]=await db.query<any[]>("SELECT id,role,email,password_hash FROM users WHERE username=? LIMIT 1",[username]);
@@ -19,9 +27,13 @@ export async function ensurePrimaryAdmin(){
       const passwordHash=passwordMatches?admin.password_hash:await bcrypt.hash(password,12);
       await db.execute("UPDATE users SET email=?,password_hash=?,suspended=0 WHERE id=?",[email,passwordHash,admin.id]);
     }
+    adminBootstrap.completedAt=Date.now();
     return;
   }
   await db.execute("INSERT INTO users(id,role,username,email,password_hash,full_name) VALUES(?,?,?,?,?,?)",[randomUUID(),"administrator",username,email,await bcrypt.hash(password,12),"Primary Administrator"]);
+  adminBootstrap.completedAt=Date.now();
+  })();
+  try{await adminBootstrap.promise}finally{adminBootstrap.promise=undefined}
 }
 
 export async function verifyLogin(username:string,password:string){
@@ -41,6 +53,7 @@ export async function currentUser():Promise<SessionUser|null>{
   const token=(await cookies()).get(COOKIE)?.value; if(!token)return null;
   const [rows]=await db.query<any[]>(`SELECT u.id,u.username,u.email,u.full_name,u.role,u.suspended FROM sessions s JOIN users u ON u.id=s.user_id WHERE s.token_hash=? AND s.expires_at>NOW() LIMIT 1`,[tokenHash(token)]);
   const row=rows[0]; if(!row||row.suspended)return null;
+  await db.execute("UPDATE sessions SET created_at=NOW() WHERE token_hash=? AND created_at<DATE_SUB(NOW(),INTERVAL 30 SECOND)",[tokenHash(token)]);
   return {id:row.id,username:row.username,email:row.email,name:row.full_name,role:row.role};
 }
 
