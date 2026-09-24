@@ -24,6 +24,7 @@ export default function Users() {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [accountSearch, setAccountSearch] = useState({ student: "", school: "" });
 
   const load = useCallback(async () => {
     try {
@@ -81,7 +82,11 @@ export default function Users() {
 
   function accountTable(title: string, description: string, role: User["role"]) {
     const rows = users.filter((user) => user.role === role);
-    const grouped = Array.from(rows.reduce((map, user) => {
+    const searchable = role === "student" || role === "school";
+    const query = searchable ? accountSearch[role].trim().toLowerCase() : "";
+    const visibleRows = query ? rows.filter((user) => [user.district, user.username, user.name, user.schoolName, user.schoolId, user.lrn]
+      .some((value) => String(value || "").toLowerCase().includes(query))) : rows;
+    const grouped = Array.from(visibleRows.reduce((map, user) => {
       const district = user.district || (role === "administrator" ? "Division-wide" : "District not specified");
       map.set(district, [...(map.get(district) || []), user]);
       return map;
@@ -90,7 +95,11 @@ export default function Users() {
 
     return <section className="user-table-card">
       <header><div><h2>{title}</h2><p>{description}</p></div><strong aria-label={`${rows.length} accounts`}>{rows.length}</strong></header>
-      {rows.length === 0 ? <div className="user-table-empty">{loading ? "Loading accounts…" : `No ${title.toLowerCase()} found.`}</div> :
+      {searchable && <div className="account-search-toolbar">
+        <label htmlFor={`${role}-account-search`}><span>Search {role === "student" ? "students" : "teachers / schools"}</span><div><b aria-hidden="true">⌕</b><input id={`${role}-account-search`} type="search" value={accountSearch[role]} onChange={(event) => setAccountSearch((current) => ({ ...current, [role]: event.target.value }))} placeholder="Search district, username, name, or school..."/>{accountSearch[role] && <button type="button" onClick={() => setAccountSearch((current) => ({ ...current, [role]: "" }))}>Clear</button>}</div></label>
+        <p><strong>{visibleRows.length}</strong> of {rows.length} registered account{rows.length === 1 ? "" : "s"}</p>
+      </div>}
+      {rows.length === 0 ? <div className="user-table-empty">{loading ? "Loading accounts…" : `No ${title.toLowerCase()} found.`}</div> : visibleRows.length === 0 ? <div className="user-table-empty search-empty"><strong>No matching accounts</strong><span>Try another district, username, person name, or school.</span></div> :
         <div className="district-account-groups">{grouped.map(([district, districtRows]) =>
           <section className="district-account-container" key={district}>
             <header><div><small>District</small><h3>{district}</h3></div><strong>{districtRows.length} account{districtRows.length === 1 ? "" : "s"}</strong></header>
