@@ -1,4 +1,90 @@
-"use client";import {FormEvent,useEffect,useState} from "react";import {createPortal} from "react-dom";
-type Resource={id:string;title:string;learningArea:string;gradeLevel:string;term:string;fileName:string};const subjects=["SPED","KINDERGARTEN","ENGLISH","MATHEMATICS - REGULAR","SCIENCE","SCIENCE - SPS","FILIPINO","MUSIC & ARTS","PHYSICAL EDUCATION & HEALTH","EPP","Technology and Livelihood Education (TLE)","GMRC","VALUES EDUCATION (VE)","Edukasyong Pantahanan at Pangkabuhayan (EPP)","Araling Panlipunan (AP)","Alternative Learning System (ALS)","Effective Communication","General Mathematics","General Science","Life and Career Skills","Pag-aaral ng Kasaysayan at Lipunang Pilipino","ELECTIVES","TECHPRO"].sort((a,b)=>a.localeCompare(b));const grades=["Kindergarten",...Array.from({length:12},(_,i)=>`Grade ${i+1}`),"Alternative Learning System"];
-export default function UploadResourceManager(){const[open,setOpen]=useState(false),[mounted,setMounted]=useState(false),[uploads,setUploads]=useState<Resource[]>([]),[message,setMessage]=useState(""),[selectedCount,setSelectedCount]=useState(0);const load=()=>fetch("/api/resources",{cache:"no-store"}).then(r=>r.json()).then(d=>setUploads(d.resources||[])).catch(()=>{});useEffect(()=>{setMounted(true);load()},[]);async function upload(event:FormEvent<HTMLFormElement>){event.preventDefault();setMessage("Uploading PDFs securely…");const form=event.currentTarget,data=new FormData(form),input=form.elements.namedItem("resourceFile") as HTMLInputElement;Array.from(input.files||[]).forEach(file=>data.append("files",file));data.delete("resourceFile");const response=await fetch("/api/resources",{method:"POST",body:data}),result=await response.json();if(!response.ok){setMessage(result.error||"Upload failed.");return}setMessage(`${result.resources.length} PDF file${result.resources.length===1?"":"s"} uploaded successfully.`);form.reset();setSelectedCount(0);await load()}
-const dialog=open&&mounted?createPortal(<div className="upload-modal-backdrop" onMouseDown={e=>{if(e.target===e.currentTarget)setOpen(false)}}><section className="account-dialog upload-dialog"><header><span className="account-icon upload-icon">⇧</span><div><small>Central resource management</small><h2>Upload Learning Resources</h2></div><button onClick={()=>setOpen(false)}>×</button></header><div className="upload-dialog-scroll"><form onSubmit={upload}><p className="auto-title-note">Select one or many PDFs. Titles are generated from filenames and stored in MySQL.</p><div className="dialog-grid"><label>Subject<select name="learningArea" required defaultValue=""><option value="" disabled>Select subject</option>{subjects.map(s=><option key={s}>{s}</option>)}</select></label><label>Grade Level<select name="gradeLevel" required defaultValue=""><option value="" disabled>Select grade</option>{grades.map(g=><option key={g}>{g}</option>)}</select></label></div><label>Term<select name="term" required defaultValue=""><option value="" disabled>Select term</option><option>Term 1</option><option>Term 2</option><option>Term 3</option><option>Full Year</option></select></label><label className="file-drop">PDF Learning Activity Sheets<input name="resourceFile" type="file" accept="application/pdf,.pdf" multiple required onChange={e=>setSelectedCount(e.target.files?.length||0)}/><span>{selectedCount?`${selectedCount} PDF files selected`:"Choose PDF files"}</span><small>PDF only · maximum 15 MB per file</small></label>{message&&<p className={`form-alert ${message.includes("successfully")?"success":"error"}`}>{message}</p>}<div className="dialog-actions"><button type="button" onClick={()=>setOpen(false)}>Close</button><button type="submit">Upload PDF Batch →</button></div></form></div></section></div>,document.body):null;const termCounts=["Term 1","Term 2","Term 3","Full Year"].map(term=>({term,count:uploads.filter(resource=>resource.term.trim().toLowerCase()===term.toLowerCase()).length}));return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={()=>{setMessage("");setOpen(true)}}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({term,count})=><div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}</>}
+"use client";
+
+import { FormEvent, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
+
+type Resource = { id: string; title: string; learningArea: string; gradeLevel: string; term: string; fileName: string };
+type UploadProgress = { percent: number; completed: number; total: number };
+
+const subjects = ["SPED", "KINDERGARTEN", "ENGLISH", "MATHEMATICS - REGULAR", "SCIENCE", "SCIENCE - SPS", "FILIPINO", "MUSIC & ARTS", "PHYSICAL EDUCATION & HEALTH", "EPP", "Technology and Livelihood Education (TLE)", "GMRC", "VALUES EDUCATION (VE)", "Edukasyong Pantahanan at Pangkabuhayan (EPP)", "Araling Panlipunan (AP)", "Alternative Learning System (ALS)", "Effective Communication", "General Mathematics", "General Science", "Life and Career Skills", "Pag-aaral ng Kasaysayan at Lipunang Pilipino", "ELECTIVES", "TECHPRO"].sort((a, b) => a.localeCompare(b));
+const grades = ["Kindergarten", ...Array.from({ length: 12 }, (_, index) => `Grade ${index + 1}`), "Alternative Learning System"];
+const terms = ["Term 1", "Term 2", "Term 3", "Full Year"];
+
+export default function UploadResourceManager() {
+  const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [uploads, setUploads] = useState<Resource[]>([]);
+  const [message, setMessage] = useState("");
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [uploading, setUploading] = useState(false);
+  const [progress, setProgress] = useState<UploadProgress>({ percent: 0, completed: 0, total: 0 });
+
+  const load = () => fetch("/api/resources", { cache: "no-store" }).then((response) => response.json()).then((data) => setUploads(data.resources || [])).catch(() => {});
+  useEffect(() => { setMounted(true); load(); }, []);
+
+  async function upload(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const input = form.elements.namedItem("resourceFile") as HTMLInputElement;
+    const files = Array.from(input.files || []);
+    const total = files.length;
+    if (!total) return;
+    const data = new FormData(form);
+    files.forEach((file) => data.append("files", file));
+    data.delete("resourceFile");
+    setUploading(true);
+    setMessage("Uploading PDFs securely…");
+    setProgress({ percent: 0, completed: 0, total });
+
+    try {
+      const result = await new Promise<{ resources?: Resource[]; error?: string }>((resolve, reject) => {
+        const request = new XMLHttpRequest();
+        request.open("POST", "/api/resources");
+        request.upload.onprogress = (uploadEvent) => {
+          if (!uploadEvent.lengthComputable) return;
+          const percent = Math.min(99, Math.round((uploadEvent.loaded / uploadEvent.total) * 100));
+          const completed = Math.min(total - 1, Math.floor((percent / 100) * total));
+          setProgress({ percent, completed, total });
+        };
+        request.onload = () => {
+          let body: { resources?: Resource[]; error?: string } = {};
+          try { body = JSON.parse(request.responseText || "{}"); } catch {}
+          if (request.status >= 200 && request.status < 300) resolve(body);
+          else reject(new Error(body.error || "Upload failed."));
+        };
+        request.onerror = () => reject(new Error("Upload failed. Check your connection and try again."));
+        request.send(data);
+      });
+      const uploadedCount = result.resources?.length || total;
+      setProgress({ percent: 100, completed: uploadedCount, total });
+      setMessage(`${uploadedCount} PDF file${uploadedCount === 1 ? "" : "s"} uploaded successfully.`);
+      form.reset();
+      setSelectedCount(0);
+      await load();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "Upload failed.");
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  const termCounts = terms.map((term) => ({ term, count: uploads.filter((resource) => resource.term.trim().toLowerCase() === term.toLowerCase()).length }));
+  const dialog = open && mounted ? createPortal(
+    <div className="upload-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !uploading) setOpen(false); }}>
+      <section className="account-dialog upload-dialog">
+        <header><span className="account-icon upload-icon">⇧</span><div><small>Central resource management</small><h2>Upload Learning Resources</h2></div><button disabled={uploading} onClick={() => setOpen(false)}>×</button></header>
+        <div className="upload-dialog-scroll"><form onSubmit={upload}>
+          <p className="auto-title-note">Select one or many PDFs. Titles are generated from filenames and stored in MySQL.</p>
+          <div className="dialog-grid"><label>Subject<select name="learningArea" required defaultValue="" disabled={uploading}><option value="" disabled>Select subject</option>{subjects.map((subject) => <option key={subject}>{subject}</option>)}</select></label><label>Grade Level<select name="gradeLevel" required defaultValue="" disabled={uploading}><option value="" disabled>Select grade</option>{grades.map((grade) => <option key={grade}>{grade}</option>)}</select></label></div>
+          <label>Term<select name="term" required defaultValue="" disabled={uploading}><option value="" disabled>Select term</option>{terms.map((term) => <option key={term}>{term}</option>)}</select></label>
+          <label className="file-drop">PDF Learning Activity Sheets<input name="resourceFile" type="file" accept="application/pdf,.pdf" multiple required disabled={uploading} onChange={(event) => { const count = event.target.files?.length || 0; setSelectedCount(count); setProgress({ percent: 0, completed: 0, total: count }); }}/><span>{selectedCount ? `${selectedCount} PDF files selected` : "Choose PDF files"}</span><small>PDF only · maximum 15 MB per file</small></label>
+          {(uploading || progress.percent > 0) && <div className="batch-upload-progress" aria-live="polite"><div><strong>{uploading ? "Uploading PDF batch" : "Batch upload complete"}</strong><span>{progress.completed}/{progress.total} files · {progress.percent}%</span></div><i><em style={{ width: `${progress.percent}%` }} /></i></div>}
+          {message && <p className={`form-alert ${message.includes("successfully") ? "success" : "error"}`}>{message}</p>}
+          <div className="dialog-actions"><button type="button" disabled={uploading} onClick={() => setOpen(false)}>Close</button><button type="submit" disabled={uploading}>{uploading ? `Uploading ${progress.completed}/${progress.total}…` : "Upload PDF Batch →"}</button></div>
+        </form></div>
+      </section>
+    </div>, document.body,
+  ) : null;
+
+  return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={() => { setMessage(""); setProgress({ percent: 0, completed: 0, total: 0 }); setOpen(true); }}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({ term, count }) => <div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}</>;
+}
