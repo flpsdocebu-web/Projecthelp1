@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 
 type Resource = { id: string; title: string; learningArea: string; gradeLevel: string; term: string; fileName: string };
-const termOrder = ["Term 1", "Term 2", "Term 3"] as const;
+const termOrder = ["Term 1", "Term 2", "Term 3", "Full Year"] as const;
 
 function normalizedTerm(value: string) {
+  if (/full\s*year/i.test(String(value || ""))) return "Full Year";
   const match = String(value || "").match(/[1-3]/);
   return match ? `Term ${match[0]}` : "Term 1";
 }

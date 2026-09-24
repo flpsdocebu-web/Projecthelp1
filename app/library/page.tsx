@@ -9,9 +9,10 @@ type LibraryResource = { id?: string; grade: string; subject: string; title: str
 type UploadRecord = { id: string; title: string; learningArea: string; gradeLevel: string; term: string; fileName: string };
 
 const starter: LibraryResource[] = [];
-const termOrder = ["Term 1", "Term 2", "Term 3"];
+const termOrder = ["Term 1", "Term 2", "Term 3", "Full Year"];
 const uploadColors = ["linear-gradient(145deg,#16765c,#45aa7c)", "linear-gradient(145deg,#145a8f,#3c91c8)", "linear-gradient(145deg,#74509b,#ad78c7)", "linear-gradient(145deg,#a86718,#dfa63c)"];
 const normalizeTerm = (value?: string) => {
+  if (/full\s*year/i.test(String(value || ""))) return "Full Year";
   const match = String(value || "").match(/[123]/);
   return match ? `Term ${match[0]}` : "Term 1";
 };
