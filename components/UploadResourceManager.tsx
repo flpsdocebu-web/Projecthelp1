@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 
 type Resource = { id: string; title: string; learningArea: string; gradeLevel: string; term: string; fileName: string };
 type UploadProgress = { percent: number; completed: number; total: number };
+type DuplicateWarning = { learningArea: string; fileNames: string[] };
 
 const subjects = ["SPED", "KINDERGARTEN", "ENGLISH", "MAKABANSA", "MATHEMATICS - REGULAR", "SCIENCE", "SCIENCE - SPS", "FILIPINO", "MUSIC & ARTS", "PHYSICAL EDUCATION & HEALTH", "EPP", "Technology and Livelihood Education (TLE)", "GMRC", "VALUES EDUCATION (VE)", "Edukasyong Pantahanan at Pangkabuhayan (EPP)", "Araling Panlipunan (AP)", "Alternative Learning System (ALS)", "Effective Communication", "General Mathematics", "General Science", "Life and Career Skills", "Pag-aaral ng Kasaysayan at Lipunang Pilipino", "ELECTIVES", "TECHPRO"].sort((a, b) => a.localeCompare(b));
 const grades = ["Kindergarten", ...Array.from({ length: 12 }, (_, index) => `Grade ${index + 1}`), "Alternative Learning System"];
@@ -18,6 +19,7 @@ export default function UploadResourceManager() {
   const [selectedCount, setSelectedCount] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<UploadProgress>({ percent: 0, completed: 0, total: 0 });
+  const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
 
   const load = () => fetch("/api/resources", { cache: "no-store" }).then((response) => response.json()).then((data) => setUploads(data.resources || [])).catch(() => {});
   useEffect(() => { setMounted(true); load(); }, []);
@@ -45,8 +47,9 @@ export default function UploadResourceManager() {
       const duplicateResult = await duplicateResponse.json();
       if (!duplicateResponse.ok) throw new Error(duplicateResult.error || "Duplicate check failed.");
       if (duplicateResult.duplicate) {
-        const names = Array.isArray(duplicateResult.duplicates) ? duplicateResult.duplicates.join(", ") : "A selected file";
-        setMessage(`Duplicate upload blocked. ${names} already exists under ${learningArea}.`);
+        const fileNames = Array.isArray(duplicateResult.duplicates) ? duplicateResult.duplicates : ["A selected file"];
+        setMessage("");
+        setDuplicateWarning({ learningArea, fileNames });
         return;
       }
 
@@ -62,10 +65,13 @@ export default function UploadResourceManager() {
           setProgress({ percent, completed, total });
         };
         request.onload = () => {
-          let body: { resources?: Resource[]; error?: string } = {};
+          let body: { resources?: Resource[]; error?: string; code?: string; duplicates?: string[]; learningArea?: string } = {};
           try { body = JSON.parse(request.responseText || "{}"); } catch {}
           if (request.status >= 200 && request.status < 300) resolve(body);
-          else reject(new Error(body.error || "Upload failed."));
+          else if (request.status === 409 && body.code === "DUPLICATE_RESOURCE" && body.duplicates?.length) {
+            setDuplicateWarning({ learningArea: body.learningArea || learningArea, fileNames: body.duplicates });
+            reject(new Error(""));
+          } else reject(new Error(body.error || "Upload failed."));
         };
         request.onerror = () => reject(new Error("Upload failed. Check your connection and try again."));
         request.send(data);
@@ -77,13 +83,27 @@ export default function UploadResourceManager() {
       setSelectedCount(0);
       await load();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : "Upload failed.");
+      const errorMessage = error instanceof Error ? error.message : "Upload failed.";
+      setMessage(errorMessage);
     } finally {
       setUploading(false);
     }
   }
 
   const termCounts = terms.map((term) => ({ term, count: uploads.filter((resource) => resource.term.trim().toLowerCase() === term.toLowerCase()).length }));
+  const duplicateDialog = duplicateWarning && mounted ? createPortal(
+    <div className="duplicate-warning-backdrop" role="presentation">
+      <section className="duplicate-warning-dialog" role="alertdialog" aria-modal="true" aria-labelledby="duplicate-warning-title">
+        <div className="duplicate-warning-symbol" aria-hidden="true">!</div>
+        <small>Upload stopped</small>
+        <h2 id="duplicate-warning-title">Duplicate file detected</h2>
+        <p>The following PDF file{duplicateWarning.fileNames.length === 1 ? " is" : "s are"} already uploaded under <strong>{duplicateWarning.learningArea}</strong>:</p>
+        <ul>{duplicateWarning.fileNames.map((fileName) => <li key={fileName}>{fileName}</li>)}</ul>
+        <p className="duplicate-warning-help">Rename the file or select the correct subject before uploading again.</p>
+        <button type="button" autoFocus onClick={() => setDuplicateWarning(null)}>Okay, review files</button>
+      </section>
+    </div>, document.body,
+  ) : null;
   const dialog = open && mounted ? createPortal(
     <div className="upload-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !uploading) setOpen(false); }}>
       <section className="account-dialog upload-dialog">
@@ -101,5 +121,5 @@ export default function UploadResourceManager() {
     </div>, document.body,
   ) : null;
 
-  return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={() => { setMessage(""); setProgress({ percent: 0, completed: 0, total: 0 }); setOpen(true); }}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({ term, count }) => <div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}</>;
+  return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={() => { setMessage(""); setDuplicateWarning(null); setProgress({ percent: 0, completed: 0, total: 0 }); setOpen(true); }}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({ term, count }) => <div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}{duplicateDialog}</>;
 }
