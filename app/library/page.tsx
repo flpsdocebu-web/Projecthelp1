@@ -20,6 +20,7 @@ const normalizeSubject = (value?: string) => {
   const subject = String(value || "").trim();
   if (subject.toUpperCase() === "MATHEMATICS") return "MATHEMATICS - SPS";
   if (subject.toUpperCase() === "SPED") return "SNED";
+  if (subject.toUpperCase() === "KINDERGARTEN") return "Kindergarten - Literacy";
   return subject;
 };
 
@@ -49,7 +50,7 @@ export default function Library() {
   useEffect(() => { loadUploads(); }, []);
 
   const resources = useMemo(() => [...uploaded, ...starter], [uploaded]);
-  const subjects = useMemo(() => ["All subjects", ...Array.from(new Set(["MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "Reading and Literacy and Language", "SNED", "SNED - Care Skills", "SNED - Life Skills", ...resources.map((resource) => resource.subject)])).sort((a, b) => a.localeCompare(b))], [resources]);
+  const subjects = useMemo(() => ["All subjects", ...Array.from(new Set(["Kindergarten - Literacy", "Kindergarten - Numeracy", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "Reading and Literacy and Language", "SNED", "SNED - Care Skills", "SNED - Life Skills", ...resources.map((resource) => resource.subject)])).sort((a, b) => a.localeCompare(b))], [resources]);
   const grades = useMemo(() => ["All grade levels", ...Array.from(new Set(resources.map((resource) => resource.grade))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))], [resources]);
   const filtered = useMemo(() => resources.filter((resource) =>
     (subject === "All subjects" || resource.subject === subject) &&
