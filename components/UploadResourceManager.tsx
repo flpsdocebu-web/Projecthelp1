@@ -7,7 +7,7 @@ type Resource = { id: string; title: string; learningArea: string; gradeLevel: s
 type UploadProgress = { percent: number; completed: number; total: number };
 type DuplicateWarning = { learningArea: string; fileNames: string[] };
 
-const subjects = ["SPED", "KINDERGARTEN", "ENGLISH", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "SCIENCE", "SCIENCE - SPS", "FILIPINO", "MUSIC & ARTS", "PHYSICAL EDUCATION & HEALTH", "EPP", "Technology and Livelihood Education (TLE)", "GMRC", "VALUES EDUCATION (VE)", "Edukasyong Pantahanan at Pangkabuhayan (EPP)", "Araling Panlipunan (AP)", "Alternative Learning System (ALS)", "Effective Communication", "General Mathematics", "General Science", "Life and Career Skills", "Pag-aaral ng Kasaysayan at Lipunang Pilipino", "ELECTIVES", "TECHPRO"].sort((a, b) => a.localeCompare(b));
+const subjects = ["SNED", "KINDERGARTEN", "ENGLISH", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "SCIENCE", "SCIENCE - SPS", "FILIPINO", "MUSIC & ARTS", "PHYSICAL EDUCATION & HEALTH", "EPP", "Technology and Livelihood Education (TLE)", "GMRC", "VALUES EDUCATION (VE)", "Edukasyong Pantahanan at Pangkabuhayan (EPP)", "Araling Panlipunan (AP)", "Alternative Learning System (ALS)", "Effective Communication", "General Mathematics", "General Science", "Life and Career Skills", "Pag-aaral ng Kasaysayan at Lipunang Pilipino", "ELECTIVES", "TECHPRO"].sort((a, b) => a.localeCompare(b));
 const grades = ["Kindergarten", ...Array.from({ length: 12 }, (_, index) => `Grade ${index + 1}`), "Alternative Learning System"];
 const terms = ["Term 1", "Term 2", "Term 3", "Full Year"];
 
