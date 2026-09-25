@@ -30,13 +30,28 @@ export default function UploadResourceManager() {
     const total = files.length;
     if (!total) return;
     const data = new FormData(form);
+    const learningArea = String(data.get("learningArea") || "").trim();
     files.forEach((file) => data.append("files", file));
     data.delete("resourceFile");
-    setUploading(true);
-    setMessage("Uploading PDFs securely…");
     setProgress({ percent: 0, completed: 0, total });
 
     try {
+      setMessage("Checking filenames and subject for duplicates…");
+      const duplicateResponse = await fetch("/api/resources/check-duplicate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ learningArea, fileNames: files.map((file) => file.name) }),
+      });
+      const duplicateResult = await duplicateResponse.json();
+      if (!duplicateResponse.ok) throw new Error(duplicateResult.error || "Duplicate check failed.");
+      if (duplicateResult.duplicate) {
+        const names = Array.isArray(duplicateResult.duplicates) ? duplicateResult.duplicates.join(", ") : "A selected file";
+        setMessage(`Duplicate upload blocked. ${names} already exists under ${learningArea}.`);
+        return;
+      }
+
+      setUploading(true);
+      setMessage("Uploading PDFs securely…");
       const result = await new Promise<{ resources?: Resource[]; error?: string }>((resolve, reject) => {
         const request = new XMLHttpRequest();
         request.open("POST", "/api/resources");
