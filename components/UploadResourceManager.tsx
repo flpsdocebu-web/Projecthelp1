@@ -20,6 +20,7 @@ export default function UploadResourceManager() {
   const [uploading, setUploading] = useState(false);
   const [progress, setProgress] = useState<UploadProgress>({ percent: 0, completed: 0, total: 0 });
   const [duplicateWarning, setDuplicateWarning] = useState<DuplicateWarning | null>(null);
+  const [uploadComplete, setUploadComplete] = useState<number | null>(null);
 
   const load = () => fetch("/api/resources", { cache: "no-store" }).then((response) => response.json()).then((data) => setUploads(data.resources || [])).catch(() => {});
   useEffect(() => { setMounted(true); load(); }, []);
@@ -79,6 +80,7 @@ export default function UploadResourceManager() {
       const uploadedCount = result.resources?.length || total;
       setProgress({ percent: 100, completed: uploadedCount, total });
       setMessage(`${uploadedCount} PDF file${uploadedCount === 1 ? "" : "s"} uploaded successfully.`);
+      setUploadComplete(uploadedCount);
       form.reset();
       setSelectedCount(0);
       await load();
@@ -104,6 +106,18 @@ export default function UploadResourceManager() {
       </section>
     </div>, document.body,
   ) : null;
+  const uploadCompleteDialog = uploadComplete !== null && mounted ? createPortal(
+    <div className="upload-complete-backdrop" role="presentation">
+      <section className="upload-complete-dialog" role="alertdialog" aria-modal="true" aria-labelledby="upload-complete-title">
+        <div className="upload-complete-symbol" aria-hidden="true">✓</div>
+        <small>Learning resources saved</small>
+        <h2 id="upload-complete-title">Upload Complete – 100%</h2>
+        <p><strong>{uploadComplete}</strong> PDF file{uploadComplete === 1 ? " was" : "s were"} uploaded successfully.</p>
+        <div className="upload-complete-meter" aria-label="Upload progress 100 percent"><i /></div>
+        <button type="button" autoFocus onClick={() => { setUploadComplete(null); setOpen(false); }}>Close</button>
+      </section>
+    </div>, document.body,
+  ) : null;
   const dialog = open && mounted ? createPortal(
     <div className="upload-modal-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget && !uploading) setOpen(false); }}>
       <section className="account-dialog upload-dialog">
@@ -121,5 +135,5 @@ export default function UploadResourceManager() {
     </div>, document.body,
   ) : null;
 
-  return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={() => { setMessage(""); setDuplicateWarning(null); setProgress({ percent: 0, completed: 0, total: 0 }); setOpen(true); }}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({ term, count }) => <div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}{duplicateDialog}</>;
+  return <><div className="upload-manager"><div className="upload-manager-summary"><div><small>Uploaded resources</small><strong>{uploads.length}</strong></div><button className="btn primary" onClick={() => { setMessage(""); setDuplicateWarning(null); setUploadComplete(null); setProgress({ percent: 0, completed: 0, total: 0 }); setOpen(true); }}>＋ Upload new resource</button></div><div className="upload-term-counts" aria-label="Uploaded resources by term">{termCounts.map(({ term, count }) => <div key={term}><small>{term}</small><strong>{count}</strong><span>Resources uploaded</span></div>)}</div></div>{dialog}{duplicateDialog}{uploadCompleteDialog}</>;
 }
