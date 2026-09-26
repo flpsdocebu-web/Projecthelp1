@@ -50,7 +50,7 @@ export default function Library() {
   useEffect(() => { loadUploads(); }, []);
 
   const resources = useMemo(() => [...uploaded, ...starter], [uploaded]);
-  const subjects = useMemo(() => ["All subjects", ...Array.from(new Set(["Kindergarten - Literacy", "Kindergarten - Numeracy", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "Reading and Literacy and Language", "SNED", "SNED - Care Skills", "SNED - Life Skills", ...resources.map((resource) => resource.subject)])).sort((a, b) => a.localeCompare(b))], [resources]);
+  const subjects = useMemo(() => ["All subjects", ...Array.from(new Set(["Kindergarten - Literacy", "Kindergarten - Numeracy", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "Reading and Literacy and Language", "SNED", "SNED - Care Skills", "SNED - Life Skills", "TLE - Agriculture and Fishery Arts", "TLE - Family and Consumer Science", "TLE - Industrial Arts", "TLE - Information and Communications Technology", ...resources.map((resource) => resource.subject)])).sort((a, b) => a.localeCompare(b))], [resources]);
   const grades = useMemo(() => ["All grade levels", ...Array.from(new Set(resources.map((resource) => resource.grade))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))], [resources]);
   const filtered = useMemo(() => resources.filter((resource) =>
     (subject === "All subjects" || resource.subject === subject) &&
