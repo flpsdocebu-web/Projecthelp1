@@ -86,6 +86,13 @@ export default function DashboardLiveMetrics() {
   );
 
   const maximum = Math.max(1, ...months.flatMap((month) => [month.downloads, month.prints]));
+  const schoolYearDownloads = months.reduce((sum, month) => sum + month.downloads, 0);
+  const schoolYearPrints = months.reduce((sum, month) => sum + month.prints, 0);
+  const schoolYearActivity = schoolYearDownloads + schoolYearPrints;
+  const activeMonthCount = Math.max(1, months.filter((month) => month.downloads + month.prints > 0).length);
+  const peakMonth = months.reduce((peak, month) => month.downloads + month.prints > peak.downloads + peak.prints ? month : peak, months[0]);
+  const downloadShare = schoolYearActivity ? (schoolYearDownloads / schoolYearActivity) * 100 : 0;
+  const printShare = schoolYearActivity ? (schoolYearPrints / schoolYearActivity) * 100 : 0;
   const districtMaximum = Math.max(1, ...data.districtCounts.map((district) => district.accounts));
   const activeUsers = Math.max(1, data.students + data.teachers);
   const schoolPercentage = reachPercentage(data.schools, DIVISION_TOTALS.schools);
@@ -129,6 +136,17 @@ export default function DashboardLiveMetrics() {
               </div>
             ))}
           </div>
+          <section className="chart-insights">
+            <div className="chart-insights-head"><div><small>School-year insights</small><strong>SY {currentSchoolYear} activity snapshot</strong></div><span>Live totals</span></div>
+            <div className="chart-insight-cards">
+              <div><small>Downloads</small><strong>{schoolYearDownloads.toLocaleString()}</strong><span>Current school year</span></div>
+              <div><small>Prints</small><strong>{schoolYearPrints.toLocaleString()}</strong><span>Current school year</span></div>
+              <div><small>Busiest month</small><strong>{schoolYearActivity ? peakMonth.label : "—"}</strong><span>{schoolYearActivity ? `${(peakMonth.downloads + peakMonth.prints).toLocaleString()} actions` : "No activity yet"}</span></div>
+              <div><small>Monthly average</small><strong>{Math.round(schoolYearActivity / activeMonthCount).toLocaleString()}</strong><span>Across active months</span></div>
+            </div>
+            <div className="activity-mix"><div><span>Download share <b>{downloadShare.toFixed(1)}%</b></span><i><em style={{ width: `${downloadShare}%` }} /></i></div><div><span>Print share <b>{printShare.toFixed(1)}%</b></span><i><em style={{ width: `${printShare}%` }} /></i></div></div>
+            <div className="monthly-activity-ledger"><div className="monthly-ledger-head"><strong>Monthly activity ledger</strong><span>June–May</span></div>{months.map((month) => <div className="monthly-ledger-row" key={`ledger-${month.label}`}><b>{month.label}</b><span><i className="blue-dot" />{month.downloads.toLocaleString()} downloads</span><span><i className="green-dot" />{month.prints.toLocaleString()} prints</span><strong>{(month.downloads + month.prints).toLocaleString()}</strong></div>)}</div>
+          </section>
         </article>
         <article className="panel reach-panel">
           <div className="panel-head"><div><strong>Program reach</strong><span>Coverage across DepEd Cebu Province</span></div></div>
