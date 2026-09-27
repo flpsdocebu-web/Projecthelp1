@@ -74,7 +74,7 @@ export default function DashboardLiveMetrics() {
     () =>
       Array.from({ length: 12 }, (_, index) => {
         const date = new Date(currentSchoolYearStart, 5 + index, 1);
-        const key = date.toISOString().slice(0, 7);
+        const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`;
         const found = data.months.find((month) => month.month === key);
         return {
           label: date.toLocaleString("en", { month: "short" }),
