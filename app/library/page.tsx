@@ -23,6 +23,7 @@ const normalizeSubject = (value?: string) => {
   if (subject.toUpperCase() === "KINDERGARTEN") return "Kindergarten - Literacy";
   return subject;
 };
+const normalizeGrade = (value?: string) => String(value || "").trim().toUpperCase() === "SPED" ? "SNED" : String(value || "").trim();
 
 export default function Library() {
   const [query, setQuery] = useState("");
@@ -36,7 +37,7 @@ export default function Library() {
       .then((response) => response.json())
       .then(({ resources = [] }: { resources: UploadRecord[] }) => setUploaded(resources.map((record, index) => ({
         id: record.id,
-        grade: record.gradeLevel,
+        grade: normalizeGrade(record.gradeLevel),
         subject: normalizeSubject(record.learningArea),
         title: record.title,
         pages: 0,
@@ -51,7 +52,7 @@ export default function Library() {
 
   const resources = useMemo(() => [...uploaded, ...starter], [uploaded]);
   const subjects = useMemo(() => ["All subjects", ...Array.from(new Set(["ACADEMICS", "Kindergarten - Literacy", "Kindergarten - Numeracy", "MAKABANSA", "MATHEMATICS - REGULAR", "MATHEMATICS - SPS", "Reading and Literacy and Language", "SNED", "SNED - Care Skills", "SNED - Life Skills", "TLE - Agriculture and Fishery Arts", "TLE - Family and Consumer Science", "TLE - Industrial Arts", "TLE - Information and Communications Technology", ...resources.map((resource) => resource.subject)])).sort((a, b) => a.localeCompare(b))], [resources]);
-  const grades = useMemo(() => ["All grade levels", ...Array.from(new Set(resources.map((resource) => resource.grade))).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))], [resources]);
+  const grades = useMemo(() => ["All grade levels", ...Array.from(new Set(["SNED", ...resources.map((resource) => resource.grade)])).sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))], [resources]);
   const filtered = useMemo(() => resources.filter((resource) =>
     (subject === "All subjects" || resource.subject === subject) &&
     (grade === "All grade levels" || resource.grade === grade) &&
