@@ -4,6 +4,7 @@ import { CSSProperties, useEffect, useMemo, useState } from "react";
 
 type Month = { month: string; downloads: number; prints: number };
 type DistrictCount = { district: string; accounts: number; schools: number };
+type SchoolYearReport = { schoolYear: string; resources: number; previews: number; downloads: number; prints: number; totalActivity: number; firstActivity?: string; lastActivity?: string };
 type Data = {
   students: number;
   teachers: number;
@@ -13,6 +14,7 @@ type Data = {
   schools: number;
   totalUsers: number;
   months: Month[];
+  schoolYears: SchoolYearReport[];
   districtCounts: DistrictCount[];
 };
 
@@ -25,6 +27,7 @@ const empty: Data = {
   schools: 0,
   totalUsers: 0,
   months: [],
+  schoolYears: [],
   districtCounts: [],
 };
 
@@ -44,12 +47,16 @@ function normalize(payload: Partial<Data> | null | undefined): Data {
     schools: Number(payload?.schools || 0),
     totalUsers: Number(payload?.totalUsers || 0),
     months: Array.isArray(payload?.months) ? payload.months : [],
+    schoolYears: Array.isArray(payload?.schoolYears) ? payload.schoolYears : [],
     districtCounts: Array.isArray(payload?.districtCounts) ? payload.districtCounts : [],
   };
 }
 
 export default function DashboardLiveMetrics() {
   const [data, setData] = useState<Data>(empty);
+  const now = new Date();
+  const currentSchoolYearStart = now.getMonth() >= 5 ? now.getFullYear() : now.getFullYear() - 1;
+  const currentSchoolYear = `${currentSchoolYearStart}-${currentSchoolYearStart + 1}`;
 
   useEffect(() => {
     const load = () =>
@@ -65,10 +72,8 @@ export default function DashboardLiveMetrics() {
 
   const months = useMemo(
     () =>
-      Array.from({ length: 6 }, (_, index) => {
-        const date = new Date();
-        date.setDate(1);
-        date.setMonth(date.getMonth() - (5 - index));
+      Array.from({ length: 12 }, (_, index) => {
+        const date = new Date(currentSchoolYearStart, 5 + index, 1);
         const key = date.toISOString().slice(0, 7);
         const found = data.months.find((month) => month.month === key);
         return {
@@ -77,7 +82,7 @@ export default function DashboardLiveMetrics() {
           prints: Number(found?.prints || 0),
         };
       }),
-    [data.months],
+    [currentSchoolYearStart, data.months],
   );
 
   const maximum = Math.max(1, ...months.flatMap((month) => [month.downloads, month.prints]));
@@ -92,6 +97,11 @@ export default function DashboardLiveMetrics() {
     { icon: "⇩", label: "PDF downloads", value: data.downloads, color: "gold" },
     { icon: "♧", label: "Printed files", value: data.prints, color: "purple" },
   ];
+  const schoolYearReports = useMemo(() => {
+    const reports = data.schoolYears.map((report) => ({ ...report }));
+    if (!reports.some((report) => report.schoolYear === currentSchoolYear)) reports.unshift({ schoolYear: currentSchoolYear, resources: 0, previews: 0, downloads: 0, prints: 0, totalActivity: 0 });
+    return reports.sort((a, b) => b.schoolYear.localeCompare(a.schoolYear));
+  }, [currentSchoolYear, data.schoolYears]);
 
   return (
     <>
@@ -106,7 +116,7 @@ export default function DashboardLiveMetrics() {
       </div>
       <div className="dash-grid">
         <article className="panel chart-panel">
-          <div className="panel-head"><div><strong>Resource activity</strong><span>Hover over a bar for exact counts</span></div></div>
+          <div className="panel-head"><div><strong>Resource activity · SY {currentSchoolYear}</strong><span>June–May activity · hover over a bar for exact counts</span></div><b className="current-sy-badge">Current SY</b></div>
           <div className="legend"><span><i className="blue-dot" />Downloads</span><span><i className="green-dot" />Prints</span></div>
           <div className="bars">
             {months.map((month) => (
@@ -154,6 +164,11 @@ export default function DashboardLiveMetrics() {
           </div>
         </article>
       </div>
+      <article className="panel school-year-report-panel">
+        <div className="school-year-report-heading"><div><small>Incremental analytics</small><h2>Activity report by school year</h2><p>Automatically creates a new row every June from recorded resource activity.</p></div><span>Current: SY {currentSchoolYear}</span></div>
+        <div className="school-year-report-table"><table><thead><tr><th>School year</th><th>Active resources</th><th>Previews</th><th>Downloads</th><th>Prints</th><th>Total activity</th><th>Annual change</th></tr></thead><tbody>{schoolYearReports.map((report, index) => { const previous = schoolYearReports[index + 1]; const change = previous?.totalActivity ? ((report.totalActivity - previous.totalActivity) / previous.totalActivity) * 100 : null; return <tr key={report.schoolYear} className={report.schoolYear === currentSchoolYear ? "current" : ""}><td><strong>SY {report.schoolYear}</strong>{report.schoolYear === currentSchoolYear && <small>Current</small>}</td><td>{report.resources.toLocaleString()}</td><td>{report.previews.toLocaleString()}</td><td>{report.downloads.toLocaleString()}</td><td>{report.prints.toLocaleString()}</td><td><b>{report.totalActivity.toLocaleString()}</b></td><td>{change === null ? <span className="trend neutral">Baseline</span> : <span className={`trend ${change >= 0 ? "up" : "down"}`}>{change >= 0 ? "↑" : "↓"} {Math.abs(change).toFixed(1)}%</span>}</td></tr> })}</tbody></table></div>
+        <footer><span>Live MySQL report · refreshes every 30 seconds</span><span>{schoolYearReports.length} school year{schoolYearReports.length === 1 ? "" : "s"} recorded</span></footer>
+      </article>
     </>
   );
 }
