@@ -1,0 +1,9 @@
+.login-page-with-home{position:relative}
+.login-home-navigation{position:absolute;top:24px;left:clamp(20px,4vw,64px);z-index:4}
+.program-home-link{display:inline-flex;align-items:center;gap:12px;min-height:48px;padding:10px 18px;border:1px solid #b6d6c9;border-radius:14px;background:#ffffffed;color:#145443;box-shadow:0 5px 18px #205b4410;text-decoration:none;font-size:14px;font-weight:700;line-height:1.25;transition:background .2s,box-shadow .2s}
+.program-home-link>svg{flex-shrink:0}
+.program-home-description{display:block;margin-top:3px;color:#5b7b70;font-size:11px;font-weight:500}
+.program-home-link:hover{background:#e4f4ec;box-shadow:0 6px 20px #205b4420}
+.program-home-link:focus-visible{outline:3px solid #087d91;outline-offset:4px}
+.login-page-with-home .reference-login{padding-top:110px}
+@media(max-width:620px){.login-home-navigation{top:16px;left:16px}.program-home-link{gap:9px;padding:9px 14px}.login-page-with-home .reference-login{padding-top:104px}}

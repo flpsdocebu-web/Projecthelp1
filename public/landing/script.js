@@ -52,13 +52,6 @@ installButton.addEventListener("click", async () => {
 
 document.querySelectorAll("[data-program]").forEach((card) => {
   const destination = destinations[card.dataset.program];
-  card.href = destination;
+  if (destination) card.href = destination;
   card.target = "_top";
-
-  card.addEventListener("click", (event) => {
-    if (destination !== "#") return;
-
-    event.preventDefault();
-    showNotice("Destination link is ready to be added.");
-  });
 });
