@@ -33,3 +33,5 @@ Import `database/schema.sql` into the Hostinger database using phpMyAdmin, then 
 - `ADMIN_DELETE_PIN`
 
 Accounts use bcrypt password hashes and opaque HTTP-only database sessions. PDFs, activity logs, account records, districts, schools, and dashboard statistics are centralized in MySQL. Secure password-reset email delivery still requires Hostinger SMTP variables and a transactional mail route.
+
+Signed-in users can open **Edit profile** from their account name to change their name, school ID, district, photo, and password. Photos are stored in the `user_profile_photos` MySQL table, created automatically on first profile access (and included in `database/schema.sql`). Password changes require the current password and revoke other sessions. `ADMIN_PASSWORD` and `ADMIN_EMAIL` seed a new primary administrator; they do not overwrite an existing account's saved credentials. Use the profile editor or an authorized administrator reset for later password changes.

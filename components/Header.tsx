@@ -4,6 +4,9 @@ import Link from "next/link";
 import { MouseEvent, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import InstallAppButton from "@/components/InstallAppButton";
+import ProfileAccountMenu from "@/components/ProfileAccountMenu";
+import ProfileEditor from "@/components/ProfileEditor";
+import type { Profile } from "@/lib/profile";
 
 type Session = { username: string; name: string; role: "administrator" | "school" | "student" };
 
@@ -13,6 +16,17 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   const [session, setSession] = useState<Session | null>(null);
   const [checked, setChecked] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [photoVersion, setPhotoVersion] = useState(0);
+
+  useEffect(() => {
+    setProfile(null);
+    if (!session?.username) return;
+    const controller = new AbortController();
+    fetch("/api/profile", { cache: "no-store", signal: controller.signal }).then((response) => response.ok ? response.json() : null).then((result) => { if (!controller.signal.aborted && result?.profile) setProfile(result.profile); }).catch(() => {});
+    return () => controller.abort();
+  }, [session?.username]);
 
   useEffect(() => {
     const checkSession = () => fetch("/api/auth/session", { cache: "no-store" })
@@ -81,7 +95,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   }
 
   return (
-    <header className={compact ? "topbar compact" : "topbar"}>
+    <><header className={compact ? "topbar compact" : "topbar"}>
       <Link className="brand" href="/home1/">
         <img src="/project-helps-logo.png" alt="Project HELPS" />
         <span><strong>Project HELPS</strong><small>SDO Cebu Province</small></span>
@@ -98,7 +112,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
         </>}
         <div className="mobile-account-actions">
           {checked && session ? <>
-            <span><small>Signed in as</small><strong>{session.role === "administrator" ? "Administrator" : session.name || session.username}</strong></span>
+            <ProfileAccountMenu user={profile || session} photoVersion={photoVersion} onEdit={() => { setMobileOpen(false); setProfileOpen(true); }} />
             <button type="button" onClick={logout}>Log out</button>
           </> : checked ? <>
             <Link href="/login1/">Log in</Link>
@@ -109,13 +123,13 @@ export default function Header({ compact = false }: { compact?: boolean }) {
       <div className="header-actions">
         <InstallAppButton />
         {checked && session ? <>
-          <span className="signed-in-user"><small>Signed in as</small><strong>{session.role === "administrator" ? "Administrator" : session.name || session.username}</strong></span>
+          <ProfileAccountMenu user={profile || session} photoVersion={photoVersion} onEdit={() => setProfileOpen(true)} />
           <button className="btn ghost" type="button" onClick={logout}>Log out</button>
         </> : checked ? <>
           <Link className="btn ghost" href="/login1/">Log in</Link>
           <Link className="btn primary small" href="/login1/">Create account</Link>
         </> : null}
       </div>
-    </header>
+    </header>{profileOpen && session && <ProfileEditor onClose={() => setProfileOpen(false)} onSaved={(value) => { setProfile(value); setSession((previous) => previous ? { ...previous, name: value.name } : previous); setPhotoVersion(Date.now()); }} />}</>
   );
 }

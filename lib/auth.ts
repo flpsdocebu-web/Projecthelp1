@@ -22,11 +22,8 @@ export async function ensurePrimaryAdmin(){
   if(rows.length){
     const admin=rows[0];
     if(admin.role!=="administrator")throw new Error("ADMIN_USERNAME_CONFLICT");
-    const passwordMatches=await bcrypt.compare(password,admin.password_hash);
-    if(!passwordMatches||admin.email!==email){
-      const passwordHash=passwordMatches?admin.password_hash:await bcrypt.hash(password,12);
-      await db.execute("UPDATE users SET email=?,password_hash=?,suspended=0 WHERE id=?",[email,passwordHash,admin.id]);
-    }
+    // Hosting credentials seed a new administrator only. Existing accounts
+    // keep passwords changed through their profile or an administrator reset.
     adminBootstrap.completedAt=Date.now();
     return;
   }
@@ -58,5 +55,6 @@ export async function currentUser():Promise<SessionUser|null>{
 }
 
 export async function destroySession(){const jar=await cookies(),token=jar.get(COOKIE)?.value;if(token)await db.execute("DELETE FROM sessions WHERE token_hash=?",[tokenHash(token)]);jar.delete(COOKIE)}
+export async function currentSessionTokenHash(){const token=(await cookies()).get(COOKIE)?.value;return token?tokenHash(token):null}
 export async function requireAdministrator(){const user=await currentUser();return user?.role==="administrator"?user:null}
 export { bcrypt, randomUUID };
