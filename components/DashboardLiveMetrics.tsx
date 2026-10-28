@@ -2,6 +2,7 @@
 
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 import LocationActivityRankings from "@/components/LocationActivityRankings";
+import DistrictSchoolBreakdown from "@/components/DistrictSchoolBreakdown";
 
 type Month = { month: string; downloads: number; prints: number };
 type DistrictCount = { district: string; accounts: number; schools: number };
@@ -32,7 +33,7 @@ const empty: Data = {
   districtCounts: [],
 };
 
-const DIVISION_TOTALS = { districts: 58, schools: 1144 } as const;
+const DIVISION_TOTALS = { districts: 58, schools: 1145 } as const;
 
 function reachPercentage(value: number, total: number) {
   return Math.min(100, Math.max(0, (value / total) * 100));
@@ -94,11 +95,9 @@ export default function DashboardLiveMetrics() {
   const peakMonth = months.reduce((peak, month) => month.downloads + month.prints > peak.downloads + peak.prints ? month : peak, months[0]);
   const downloadShare = schoolYearActivity ? (schoolYearDownloads / schoolYearActivity) * 100 : 0;
   const printShare = schoolYearActivity ? (schoolYearPrints / schoolYearActivity) * 100 : 0;
-  const districtMaximum = Math.max(1, ...data.districtCounts.map((district) => district.accounts));
   const activeUsers = Math.max(1, data.students + data.teachers);
   const schoolPercentage = reachPercentage(data.schools, DIVISION_TOTALS.schools);
   const districtPercentage = reachPercentage(data.districts, DIVISION_TOTALS.districts);
-  const districtColors = ["#238d67", "#1d73b7", "#8c55b4", "#e09a25", "#d85b62", "#2a9eae", "#6674c8", "#75a83e"];
   const stats = [
     { icon: "♙", label: "Student users", value: data.students, color: "blue" },
     { icon: "♟", label: "Teacher/School users", value: data.teachers, color: "green-bg" },
@@ -175,12 +174,7 @@ export default function DashboardLiveMetrics() {
               <div><span>Students <b>{data.students}</b></span><i><em className="student-user-bar" style={{ width: `${(data.students / activeUsers) * 100}%` }} /></i></div>
               <div><span>Teacher/School <b>{data.teachers}</b></span><i><em className="teacher-user-bar" style={{ width: `${(data.teachers / activeUsers) * 100}%` }} /></i></div>
             </div>
-            {data.districtCounts.length > 0 && (
-              <div className="district-count-list">
-                <strong>Accounts by district</strong>
-                {data.districtCounts.map((district, index) => <div className="district-graph-row" key={district.district} style={{ "--district-color": districtColors[index % districtColors.length] } as CSSProperties}><span>{district.district}<i><em style={{ width: `${(district.accounts / districtMaximum) * 100}%` }} /></i></span><b>{district.accounts}</b></div>)}
-              </div>
-            )}
+            <DistrictSchoolBreakdown districts={data.districtCounts} />
           </div>
         </article>
       </div>
