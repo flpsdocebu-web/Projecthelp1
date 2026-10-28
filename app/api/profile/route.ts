@@ -30,15 +30,16 @@ export async function PATCH(request: Request) {
     const changes = validateProfile(body, user.role);
     connection = await db.getConnection();
     await connection.beginTransaction();
-    const [rows] = await connection.query<any[]>("SELECT password_hash FROM users WHERE id=? FOR UPDATE", [user.id]);
+    const [rows] = await connection.query<any[]>("SELECT password_hash,school_name AS schoolName FROM users WHERE id=? FOR UPDATE", [user.id]);
     if (!rows[0]) throw new ProfileInputError("This account is no longer available.");
+    const schoolName = changes.schoolName === undefined ? rows[0].schoolName : changes.schoolName || null;
     if (changes.newPassword) {
       if (!await bcrypt.compare(changes.currentPassword, rows[0].password_hash)) throw new ProfileInputError("Your current password is incorrect.");
       const passwordHash = await bcrypt.hash(changes.newPassword, 12);
-      await connection.execute("UPDATE users SET full_name=?,school_id=?,district=?,password_hash=? WHERE id=?", [changes.name, changes.schoolId || null, changes.district, passwordHash, user.id]);
+      await connection.execute("UPDATE users SET full_name=?,school_name=?,school_id=?,district=?,password_hash=? WHERE id=?", [changes.name, schoolName, changes.schoolId || null, changes.district, passwordHash, user.id]);
       const sessionHash = await currentSessionTokenHash();
       await connection.execute("DELETE FROM sessions WHERE user_id=? AND token_hash<>?", [user.id, sessionHash || ""]);
-    } else await connection.execute("UPDATE users SET full_name=?,school_id=?,district=? WHERE id=?", [changes.name, changes.schoolId || null, changes.district, user.id]);
+    } else await connection.execute("UPDATE users SET full_name=?,school_name=?,school_id=?,district=? WHERE id=?", [changes.name, schoolName, changes.schoolId || null, changes.district, user.id]);
     const profile = await readProfile(user.id, connection);
     await connection.commit();
     return NextResponse.json({ profile, passwordChanged: Boolean(changes.newPassword) }, { headers });

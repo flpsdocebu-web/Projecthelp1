@@ -16,10 +16,12 @@ export function validateProfile(input: Record<string, unknown>, role: string) {
   if ("photo" in input) throw new ProfileInputError("Profile pictures are no longer supported. Refresh the page and try again.");
   const name = typeof input.name === "string" ? input.name.trim() : "";
   const schoolId = typeof input.schoolId === "string" ? input.schoolId.trim() : "";
+  const schoolName = input.schoolName === undefined ? undefined : typeof input.schoolName === "string" ? input.schoolName.trim() : "";
   const districtValue = typeof input.district === "string" ? input.district.trim() : "";
   const district = officialDistrict(districtValue);
   if (!name || name.length > 190) throw new ProfileInputError("Enter your name using 190 characters or fewer.");
   if (schoolId.length > 80) throw new ProfileInputError("School ID must be 80 characters or fewer.");
+  if (schoolName !== undefined && (schoolName.length > 190 || (!schoolName && role !== "administrator"))) throw new ProfileInputError("Enter your assigned school using 190 characters or fewer.");
   if (!district && (districtValue || role !== "administrator")) throw new ProfileInputError("Select a district from the official list.");
   const currentPassword = typeof input.currentPassword === "string" ? input.currentPassword : "";
   const newPassword = typeof input.newPassword === "string" ? input.newPassword : "";
@@ -30,5 +32,5 @@ export function validateProfile(input: Record<string, unknown>, role: string) {
     if (newPassword !== confirmPassword) throw new ProfileInputError("The new passwords do not match.");
     if (newPassword === currentPassword) throw new ProfileInputError("Choose a password different from your current password.");
   }
-  return { name, schoolId, district, currentPassword, newPassword };
+  return { name, schoolName, schoolId, district, currentPassword, newPassword };
 }
