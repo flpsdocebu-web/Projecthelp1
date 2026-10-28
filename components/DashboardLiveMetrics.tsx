@@ -1,6 +1,7 @@
 "use client";
 
 import { CSSProperties, useEffect, useMemo, useState } from "react";
+import LocationActivityRankings from "@/components/LocationActivityRankings";
 
 type Month = { month: string; downloads: number; prints: number };
 type DistrictCount = { district: string; accounts: number; schools: number };
@@ -146,6 +147,7 @@ export default function DashboardLiveMetrics() {
             </div>
             <div className="activity-mix"><div><span>Download share <b>{downloadShare.toFixed(1)}%</b></span><i><em style={{ width: `${downloadShare}%` }} /></i></div><div><span>Print share <b>{printShare.toFixed(1)}%</b></span><i><em style={{ width: `${printShare}%` }} /></i></div></div>
             <div className="monthly-activity-ledger"><div className="monthly-ledger-head"><strong>Monthly activity ledger</strong><span>June–May</span></div>{months.map((month) => <div className="monthly-ledger-row" key={`ledger-${month.label}`}><b>{month.label}</b><span><i className="blue-dot" />{month.downloads.toLocaleString()} downloads</span><span><i className="green-dot" />{month.prints.toLocaleString()} prints</span><strong>{(month.downloads + month.prints).toLocaleString()}</strong></div>)}</div>
+            <LocationActivityRankings currentSchoolYear={currentSchoolYear} schoolYears={schoolYearReports.map((report) => report.schoolYear)} />
           </section>
         </article>
         <article className="panel reach-panel">
