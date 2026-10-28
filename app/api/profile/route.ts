@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { bcrypt, currentSessionTokenHash, currentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
-import { ensureProfilePhotos, ProfileInputError, readProfile, validateProfile } from "@/lib/profile";
+import { ProfileInputError, readProfile, validateProfile } from "@/lib/profile";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -10,7 +10,7 @@ const headers = { "Cache-Control": "private, no-store" };
 export async function GET() {
   const user = await currentUser();
   if (!user) return NextResponse.json({ error: "Please sign in to view your profile." }, { status: 401, headers });
-  try { await ensureProfilePhotos(); return NextResponse.json({ profile: await readProfile(user.id) }, { headers }); }
+  try { return NextResponse.json({ profile: await readProfile(user.id) }, { headers }); }
   catch { return NextResponse.json({ error: "Your profile is temporarily unavailable. Please try again." }, { status: 503, headers }); }
 }
 
@@ -23,12 +23,11 @@ export async function PATCH(request: Request) {
     const reader = request.body?.getReader();
     if (!reader) throw new ProfileInputError("No profile information was supplied.");
     const chunks: Uint8Array[] = []; let length = 0;
-    while (true) { const chunk = await reader.read(); if (chunk.done) break; length += chunk.value.byteLength; if (length > 1_500_000) { await reader.cancel(); throw new ProfileInputError("The profile photo is too large."); } chunks.push(chunk.value); }
+    while (true) { const chunk = await reader.read(); if (chunk.done) break; length += chunk.value.byteLength; if (length > 16_384) { await reader.cancel(); throw new ProfileInputError("The profile information is too large."); } chunks.push(chunk.value); }
     let body;
     try { body = JSON.parse(Buffer.concat(chunks).toString("utf8")); } catch { throw new ProfileInputError("Invalid profile information."); }
     if (!body || typeof body !== "object" || Array.isArray(body)) throw new ProfileInputError("Invalid profile information.");
     const changes = validateProfile(body, user.role);
-    await ensureProfilePhotos();
     connection = await db.getConnection();
     await connection.beginTransaction();
     const [rows] = await connection.query<any[]>("SELECT password_hash FROM users WHERE id=? FOR UPDATE", [user.id]);
@@ -40,8 +39,6 @@ export async function PATCH(request: Request) {
       const sessionHash = await currentSessionTokenHash();
       await connection.execute("DELETE FROM sessions WHERE user_id=? AND token_hash<>?", [user.id, sessionHash || ""]);
     } else await connection.execute("UPDATE users SET full_name=?,school_id=?,district=? WHERE id=?", [changes.name, changes.schoolId || null, changes.district, user.id]);
-    if (changes.photo === null) await connection.execute("DELETE FROM user_profile_photos WHERE user_id=?", [user.id]);
-    else if (changes.photo) await connection.execute("INSERT INTO user_profile_photos(user_id,photo,mime_type) VALUES(?,?,?) ON DUPLICATE KEY UPDATE photo=VALUES(photo),mime_type=VALUES(mime_type)", [user.id, changes.photo.bytes, changes.photo.mime]);
     const profile = await readProfile(user.id, connection);
     await connection.commit();
     return NextResponse.json({ profile, passwordChanged: Boolean(changes.newPassword) }, { headers });

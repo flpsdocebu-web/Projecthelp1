@@ -18,7 +18,6 @@ export default function Header({ compact = false }: { compact?: boolean }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
-  const [photoVersion, setPhotoVersion] = useState(0);
 
   useEffect(() => {
     setProfile(null);
@@ -112,7 +111,7 @@ export default function Header({ compact = false }: { compact?: boolean }) {
         </>}
         <div className="mobile-account-actions">
           {checked && session ? <>
-            <ProfileAccountMenu user={profile || session} photoVersion={photoVersion} onEdit={() => { setMobileOpen(false); setProfileOpen(true); }} />
+            <ProfileAccountMenu user={profile || session} onEdit={() => { setMobileOpen(false); setProfileOpen(true); }} />
             <button type="button" onClick={logout}>Log out</button>
           </> : checked ? <>
             <Link href="/login1/">Log in</Link>
@@ -123,13 +122,13 @@ export default function Header({ compact = false }: { compact?: boolean }) {
       <div className="header-actions">
         <InstallAppButton />
         {checked && session ? <>
-          <ProfileAccountMenu user={profile || session} photoVersion={photoVersion} onEdit={() => setProfileOpen(true)} />
+          <ProfileAccountMenu user={profile || session} onEdit={() => setProfileOpen(true)} />
           <button className="btn ghost" type="button" onClick={logout}>Log out</button>
         </> : checked ? <>
           <Link className="btn ghost" href="/login1/">Log in</Link>
           <Link className="btn primary small" href="/login1/">Create account</Link>
         </> : null}
       </div>
-    </header>{profileOpen && session && <ProfileEditor onClose={() => setProfileOpen(false)} onSaved={(value) => { setProfile(value); setSession((previous) => previous ? { ...previous, name: value.name } : previous); setPhotoVersion(Date.now()); }} />}</>
+    </header>{profileOpen && session && <ProfileEditor onClose={() => setProfileOpen(false)} onSaved={(value) => { setProfile(value); setSession((previous) => previous ? { ...previous, name: value.name } : previous); }} />}</>
   );
 }
