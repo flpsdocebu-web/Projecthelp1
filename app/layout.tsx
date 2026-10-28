@@ -17,6 +17,7 @@ import "./dashboard-report.css";
 import "./program-navigation.css";
 import "./location-rankings.css";
 import "./profile-editor.css";
+import "./password-help.css";
 
 export const metadata: Metadata = {
   title: "Flexible Learning Program | SDO Cebu Province",
