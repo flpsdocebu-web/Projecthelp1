@@ -3,6 +3,7 @@
 import { CSSProperties, useEffect, useMemo, useState } from "react";
 import LocationActivityRankings from "@/components/LocationActivityRankings";
 import DistrictSchoolBreakdown from "@/components/DistrictSchoolBreakdown";
+import { programReach } from "@/lib/program-reach";
 
 type Month = { month: string; downloads: number; prints: number };
 type DistrictCount = { district: string; accounts: number; schools: number };
@@ -34,10 +35,6 @@ const empty: Data = {
 };
 
 const DIVISION_TOTALS = { districts: 58, schools: 1145 } as const;
-
-function reachPercentage(value: number, total: number) {
-  return Math.min(100, Math.max(0, (value / total) * 100));
-}
 
 function normalize(payload: Partial<Data> | null | undefined): Data {
   return {
@@ -96,8 +93,10 @@ export default function DashboardLiveMetrics() {
   const downloadShare = schoolYearActivity ? (schoolYearDownloads / schoolYearActivity) * 100 : 0;
   const printShare = schoolYearActivity ? (schoolYearPrints / schoolYearActivity) * 100 : 0;
   const activeUsers = Math.max(1, data.students + data.teachers);
-  const schoolPercentage = reachPercentage(data.schools, DIVISION_TOTALS.schools);
-  const districtPercentage = reachPercentage(data.districts, DIVISION_TOTALS.districts);
+  const schoolReach = programReach(data.schools, DIVISION_TOTALS.schools);
+  const districtReach = programReach(data.districts, DIVISION_TOTALS.districts);
+  const schoolPercentage = schoolReach.percentage;
+  const districtPercentage = districtReach.percentage;
   const stats = [
     { icon: "♙", label: "Student users", value: data.students, color: "blue" },
     { icon: "♟", label: "Teacher/School users", value: data.teachers, color: "green-bg" },
@@ -154,20 +153,21 @@ export default function DashboardLiveMetrics() {
           <div className="reach">
             <div className="reach-donuts">
               <div className="reach-donut-card">
-                <div className="ring schools-ring" role="img" aria-label={`${schoolPercentage.toFixed(1)}% of schools registered`} style={{ "--reach-percent": `${schoolPercentage}%` } as CSSProperties}>
+                <div className="ring schools-ring" role="img" aria-label={`${schoolPercentage.toFixed(1)}% of the school reference total`} style={{ "--reach-percent": `${schoolReach.ringPercentage}%` } as CSSProperties}>
                   <span><strong>{schoolPercentage.toFixed(1)}%</strong><small>Schools</small></span>
                 </div>
                 <b>{data.schools.toLocaleString()} / {DIVISION_TOTALS.schools.toLocaleString()}</b>
-                <small>registered schools</small>
+                <small>registered school names / reference total</small>
               </div>
               <div className="reach-donut-card">
-                <div className="ring districts-ring" role="img" aria-label={`${districtPercentage.toFixed(1)}% of districts registered`} style={{ "--reach-percent": `${districtPercentage}%` } as CSSProperties}>
+                <div className="ring districts-ring" role="img" aria-label={`${districtPercentage.toFixed(1)}% of the district reference total`} style={{ "--reach-percent": `${districtReach.ringPercentage}%` } as CSSProperties}>
                   <span><strong>{districtPercentage.toFixed(1)}%</strong><small>Districts</small></span>
                 </div>
                 <b>{data.districts.toLocaleString()} / {DIVISION_TOTALS.districts}</b>
                 <small>registered districts</small>
               </div>
             </div>
+            {schoolReach.excess > 0 && <p className="reach-reference-warning" role="status"><strong>School count needs review</strong>{schoolReach.excess.toLocaleString()} more registered school name{schoolReach.excess === 1 ? "" : "s"} than the {DIVISION_TOTALS.schools.toLocaleString()} reference total. Review the district school lists for name variations or newly registered schools. The reference total has not been changed.</p>}
             <p className="reach-users"><i className="gold-dot" /><span><strong>{data.totalUsers.toLocaleString()} total users</strong><small>Students and school personnel</small></span></p>
             <div className="user-distribution-chart">
               <strong>Registered users</strong>
