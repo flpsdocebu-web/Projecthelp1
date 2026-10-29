@@ -102,7 +102,7 @@ export default function DashboardLiveMetrics() {
     { icon: "♙", label: "Student users", value: data.students, color: "blue" },
     { icon: "♟", label: "Teacher/School users", value: data.teachers, color: "green-bg" },
     { icon: "⇩", label: "PDF downloads", value: data.downloads, color: "gold" },
-    { icon: "♧", label: "Printed files", value: data.prints, color: "purple" },
+    { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M6 9V3h12v6M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/><path d="M18 12h.01"/></svg>, label: "Printed files", value: data.prints, color: "purple" },
   ];
   const schoolYearReports = useMemo(() => {
     const reports = data.schoolYears.map((report) => ({ ...report }));
