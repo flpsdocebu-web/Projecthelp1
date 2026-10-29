@@ -22,6 +22,7 @@ import "./district-schools.css";
 import "./program-reach.css";
 import "./registration-schools.css";
 import "./learning-area-uploads.css";
+import "./resource-cover.css";
 
 export const metadata: Metadata = {
   title: "Flexible Learning Program | SDO Cebu Province",
