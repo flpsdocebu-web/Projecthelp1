@@ -15,7 +15,6 @@ type Data = {
   prints: number;
   districts: number;
   schools: number;
-  schoolIdReviewAccounts: number;
   totalUsers: number;
   months: Month[];
   schoolYears: SchoolYearReport[];
@@ -29,7 +28,6 @@ const empty: Data = {
   prints: 0,
   districts: 0,
   schools: 0,
-  schoolIdReviewAccounts: 0,
   totalUsers: 0,
   months: [],
   schoolYears: [],
@@ -46,7 +44,6 @@ function normalize(payload: Partial<Data> | null | undefined): Data {
     prints: Number(payload?.prints || 0),
     districts: Number(payload?.districts || 0),
     schools: Number(payload?.schools || 0),
-    schoolIdReviewAccounts: Number(payload?.schoolIdReviewAccounts || 0),
     totalUsers: Number(payload?.totalUsers || 0),
     months: Array.isArray(payload?.months) ? payload.months : [],
     schoolYears: Array.isArray(payload?.schoolYears) ? payload.schoolYears : [],
@@ -171,7 +168,6 @@ export default function DashboardLiveMetrics() {
               </div>
             </div>
             {schoolReach.excess > 0 && <p className="reach-reference-warning" role="status"><strong>School count needs review</strong>{schoolReach.excess.toLocaleString()} more registered school{schoolReach.excess === 1 ? "" : "s"} than the {DIVISION_TOTALS.schools.toLocaleString()} reference total. Review the district school lists and reference total.</p>}
-            {data.schoolIdReviewAccounts > 0 && <p className="reach-reference-warning" role="status"><strong>School IDs need review</strong>{data.schoolIdReviewAccounts.toLocaleString()} active teacher/school account{data.schoolIdReviewAccounts === 1 ? " has" : "s have"} a missing or incorrectly formatted School ID. Schools are counted using each distinct entered ID, or school name and district when no ID is provided. Only accounts with neither a school name nor an ID remain uncounted. Records and activity are unchanged.</p>}
             <p className="reach-users"><i className="gold-dot" /><span><strong>{data.totalUsers.toLocaleString()} total users</strong><small>Students and school personnel</small></span></p>
             <div className="user-distribution-chart">
               <strong>Registered users</strong>
