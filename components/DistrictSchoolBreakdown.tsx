@@ -28,7 +28,7 @@ export default function DistrictSchoolBreakdown({ districts }: { districts: Dist
   }
   const rows = [...districts];
   const unassigned = groups.find((group) => group.key === "UNASSIGNED");
-  if (unassigned) rows.push({ district: unassigned.district, schools: unassigned.schools.filter((school) => school.key.startsWith("id:")).length, accounts: unassigned.schools.reduce((sum, school) => sum + school.accounts, 0) });
+  if (unassigned) rows.push({ district: unassigned.district, schools: unassigned.schools.filter((school) => !school.key.startsWith("review:")).length, accounts: unassigned.schools.reduce((sum, school) => sum + school.accounts, 0) });
   const maximum = Math.max(1, ...rows.map((district) => district[metric]));
   return <div className="district-school-breakdown">
     <div className="district-school-heading"><strong>Registered schools by district</strong><p>Select a district to see its school names and School IDs.</p></div>
@@ -42,6 +42,6 @@ export default function DistrictSchoolBreakdown({ districts }: { districts: Dist
       </details>;
     })}
     {!rows.some((district) => district.district.toLowerCase().includes(search.toLowerCase().trim())) && <p className="district-school-empty">No matching districts.</p>}
-    <p className="district-school-note">Schools are grouped by six-digit School ID, not name spelling. ID format is checked, but official registry verification is still required. Missing, invalid, or all-zero IDs are excluded from counts and remain listed for review. The same ID across districts counts once division-wide; district totals may overlap. No accounts or activity records are merged or deleted.</p>
+    <p className="district-school-note">Each distinct entered School ID counts separately, regardless of format. Without an ID, the school name and district are used as a provisional fallback. Different IDs are never combined because of similar names. The same ID across districts counts once division-wide; district totals may overlap. Entries without both a name and ID remain uncounted. Administrator verification is still needed; no accounts or activity records are merged or deleted.</p>
   </div>;
 }

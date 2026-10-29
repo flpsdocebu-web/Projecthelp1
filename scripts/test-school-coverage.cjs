@@ -33,13 +33,29 @@ assert.equal(grouped.find((item) => item.district === "Argao II").schools[0].sch
 assert.equal(grouped.find((item) => item.key === "UNASSIGNED").schools[0].schoolName, "Unassigned School");
 assert.equal(coverage.groupRegisteredSchools([]).length, 0);
 const summary = coverage.schoolCoverageSummary(rows);
-assert.equal(summary.schools, 3); // One division-wide count per valid-format ID.
+assert.equal(summary.schools, 6); // Distinct entered IDs plus a name/district fallback.
 assert.equal(summary.reviewAccounts, 4);
 assert.equal(summary.districtCounts.find((row) => row.district === 'Argao I').schools, 2);
-assert.equal(summary.districtCounts.find((row) => row.district === 'Carmen').schools, 1);
+assert.equal(summary.districtCounts.find((row) => row.district === 'Carmen').schools, 3);
 assert.equal(summary.districtCounts.reduce((sum, row) => sum + row.accounts, 0), 14);
 assert.equal(coverage.countedSchoolId(' 119100 '), '119100');
-for (const invalid of ['', null, '000000', '0009', '6100447', '119A00']) assert.equal(coverage.countedSchoolId(invalid), null);
+for (const absent of ['', null, '   ']) assert.equal(coverage.countedSchoolId(absent), null);
+for (const entered of ['000000', '0009', '6100447', '119A00']) assert.equal(coverage.countedSchoolId(entered), entered);
+const fallbackRows = [
+  { district: 'Carmen', schoolName: 'Sample School', schoolId: null, accounts: 2 },
+  { district: 'Carmen', schoolName: ' SAMPLE   SCHOOL ', schoolId: '', accounts: 3 },
+  { district: 'Catmon', schoolName: 'Sample School', schoolId: null, accounts: 1 },
+  { district: 'Carmen', schoolName: 'Sample School', schoolId: '0009', accounts: 1 },
+  { district: 'Carmen', schoolName: 'Other Name', schoolId: '0009', accounts: 1 },
+  { district: 'Carmen', schoolName: 'Sample School', schoolId: '0010', accounts: 1 },
+  { district: 'Carmen', schoolName: '', schoolId: '', accounts: 1 },
+];
+assert.equal(coverage.schoolCoverageSummary(fallbackRows).schools, 4);
+assert.equal(coverage.schoolCoverageSummary(fallbackRows).reviewAccounts, 10);
+assert.equal(coverage.schoolCoverageSummary(fallbackRows).districtCounts.find((row) => row.district === 'Carmen').schools, 3);
+const fallbackGroup = coverage.groupRegisteredSchools(fallbackRows).find((group) => group.district === 'Carmen');
+assert.equal(fallbackGroup.schools.find((school) => school.key.startsWith('name:')).accounts, 5);
+assert.equal(fallbackGroup.schools.find((school) => school.key === 'id:0009').accounts, 2);
 assert.equal(coverage.groupRegisteredSchools(rows).reduce((sum, group) => sum + group.schools.reduce((n, school) => n + school.accounts, 0), 0), 15);
 (async () => {
   let administrator = false, queried = false;
@@ -67,7 +83,7 @@ assert.equal(coverage.groupRegisteredSchools(rows).reduce((sum, group) => sum + 
     } } },
   });
   const stats = (await statsRoute.GET()).body;
-  assert.equal(stats.schools, 3);
+  assert.equal(stats.schools, 6);
   assert.equal(stats.schoolIdReviewAccounts, 4);
   assert.equal(stats.teachers, 15);
   assert.equal(stats.totalUsers, 20);

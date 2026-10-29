@@ -160,7 +160,7 @@ export default function DashboardLiveMetrics() {
                   <span><strong>{schoolPercentage.toFixed(1)}%</strong><small>Schools</small></span>
                 </div>
                 <b>{data.schools.toLocaleString()} / {DIVISION_TOTALS.schools.toLocaleString()}</b>
-                <small>unique School IDs / reference total</small>
+                <small>registered schools / reference total</small>
               </div>
               <div className="reach-donut-card">
                 <div className="ring districts-ring" role="img" aria-label={`${districtPercentage.toFixed(1)}% of the district reference total`} style={{ "--reach-percent": `${districtReach.ringPercentage}%` } as CSSProperties}>
@@ -170,8 +170,8 @@ export default function DashboardLiveMetrics() {
                 <small>registered districts</small>
               </div>
             </div>
-            {schoolReach.excess > 0 && <p className="reach-reference-warning" role="status"><strong>School count needs review</strong>{schoolReach.excess.toLocaleString()} more unique School ID{schoolReach.excess === 1 ? "" : "s"} than the {DIVISION_TOTALS.schools.toLocaleString()} reference total. Review the district school lists and reference total.</p>}
-            {data.schoolIdReviewAccounts > 0 && <p className="reach-reference-warning" role="status"><strong>School IDs need review</strong>{data.schoolIdReviewAccounts.toLocaleString()} active teacher/school account{data.schoolIdReviewAccounts === 1 ? " has" : "s have"} a missing or incorrectly formatted School ID and {data.schoolIdReviewAccounts === 1 ? "is" : "are"} excluded from the school count. Their accounts and activity remain unchanged.</p>}
+            {schoolReach.excess > 0 && <p className="reach-reference-warning" role="status"><strong>School count needs review</strong>{schoolReach.excess.toLocaleString()} more registered school{schoolReach.excess === 1 ? "" : "s"} than the {DIVISION_TOTALS.schools.toLocaleString()} reference total. Review the district school lists and reference total.</p>}
+            {data.schoolIdReviewAccounts > 0 && <p className="reach-reference-warning" role="status"><strong>School IDs need review</strong>{data.schoolIdReviewAccounts.toLocaleString()} active teacher/school account{data.schoolIdReviewAccounts === 1 ? " has" : "s have"} a missing or incorrectly formatted School ID. Schools are counted using each distinct entered ID, or school name and district when no ID is provided. Only accounts with neither a school name nor an ID remain uncounted. Records and activity are unchanged.</p>}
             <p className="reach-users"><i className="gold-dot" /><span><strong>{data.totalUsers.toLocaleString()} total users</strong><small>Students and school personnel</small></span></p>
             <div className="user-distribution-chart">
               <strong>Registered users</strong>
