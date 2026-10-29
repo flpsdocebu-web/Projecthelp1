@@ -10,7 +10,7 @@ export async function GET() {
   if (!await requireAdministrator()) return NextResponse.json({ error: "Administrator access required." }, { status: 403, headers });
   try {
     const [rows] = await db.query<any[]>(`SELECT district,school_name AS schoolName,school_id AS schoolId,COUNT(*) accounts
-      FROM users WHERE role='school' AND suspended=0 AND NULLIF(TRIM(school_name),'') IS NOT NULL
+      FROM users WHERE role='school' AND suspended=0
       GROUP BY district,school_name,school_id ORDER BY district,school_name,school_id`);
     return NextResponse.json({ districts: groupRegisteredSchools(rows) }, { headers });
   } catch { return NextResponse.json({ error: "Unable to load the school list. Please try again." }, { status: 503, headers }); }

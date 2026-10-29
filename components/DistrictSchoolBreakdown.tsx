@@ -4,7 +4,7 @@ import { CSSProperties, useEffect, useRef, useState } from "react";
 import { normalizedDistrict } from "@/lib/district";
 
 type District = { district: string; accounts: number; schools: number };
-type SchoolGroup = { key: string; district: string; schools: { schoolName: string; schoolIds: string[]; accounts: number }[] };
+type SchoolGroup = { key: string; district: string; schools: { key: string; schoolName: string; schoolIds: string[]; names: string[]; accounts: number; needsReview: boolean }[] };
 const colors = ["#238d67", "#1d73b7", "#8c55b4", "#e09a25", "#d85b62", "#2a9eae", "#6674c8", "#75a83e"];
 
 export default function DistrictSchoolBreakdown({ districts }: { districts: District[] }) {
@@ -28,7 +28,7 @@ export default function DistrictSchoolBreakdown({ districts }: { districts: Dist
   }
   const rows = [...districts];
   const unassigned = groups.find((group) => group.key === "UNASSIGNED");
-  if (unassigned) rows.push({ district: unassigned.district, schools: unassigned.schools.length, accounts: unassigned.schools.reduce((sum, school) => sum + school.accounts, 0) });
+  if (unassigned) rows.push({ district: unassigned.district, schools: unassigned.schools.filter((school) => school.key.startsWith("id:")).length, accounts: unassigned.schools.reduce((sum, school) => sum + school.accounts, 0) });
   const maximum = Math.max(1, ...rows.map((district) => district[metric]));
   return <div className="district-school-breakdown">
     <div className="district-school-heading"><strong>Registered schools by district</strong><p>Select a district to see its school names and School IDs.</p></div>
@@ -38,10 +38,10 @@ export default function DistrictSchoolBreakdown({ districts }: { districts: Dist
       const group = groups.find((entry) => entry.key === key);
       return <details className="district-school-entry" key={district.district} style={{ "--district-color": colors[index % colors.length] } as CSSProperties} onToggle={(event) => { if (event.currentTarget.open) void loadSchools(); }}>
         <summary><span><strong>{district.district}</strong><small>{district.schools.toLocaleString()} schools · {district.accounts.toLocaleString()} accounts</small><i><em style={{ width: `${district[metric] / maximum * 100}%` }} /></i></span><b aria-label={`${district[metric]} ${metric}`}>{district[metric].toLocaleString()}</b><span className="district-school-chevron" aria-hidden="true">⌄</span></summary>
-        <div className="district-school-list">{loading && <p role="status">Loading registered schools…</p>}{error && <p role="alert">{error} <button type="button" onClick={() => void loadSchools()}>Retry</button></p>}{!loading && !error && <>{group?.schools.length ? <ul>{group.schools.map((school) => <li key={school.schoolName}><strong>{school.schoolName}</strong><small>School ID: {school.schoolIds.join(", ") || "Not specified"}</small>{school.schoolIds.length > 1 && <em>Multiple School IDs registered under this name</em>}</li>)}</ul> : <p>No registered school names found in this district.</p>}</>}</div>
+        <div className="district-school-list">{loading && <p role="status">Loading registered schools…</p>}{error && <p role="alert">{error} <button type="button" onClick={() => void loadSchools()}>Retry</button></p>}{!loading && !error && <>{group?.schools.length ? <ul>{group.schools.map((school) => <li key={school.key}><strong>{school.schoolName}</strong><small>School ID: {school.schoolIds.join(", ") || "Not specified"}</small><small>{school.accounts.toLocaleString()} account{school.accounts === 1 ? "" : "s"}</small>{school.names.length > 1 && <small>Registered name variations: {school.names.join(" · ")}</small>}{school.needsReview && <em>Needs review: missing/invalid ID, conflicting district, or the same name registered with different IDs.</em>}{school.key.startsWith("review:") && <em>Not included in the school count.</em>}</li>)}</ul> : <p>No registered schools found in this district.</p>}</>}</div>
       </details>;
     })}
     {!rows.some((district) => district.district.toLowerCase().includes(search.toLowerCase().trim())) && <p className="district-school-empty">No matching districts.</p>}
-    <p className="district-school-note">Counts use registered school names within each district. School lists include active teacher/school accounts.</p>
+    <p className="district-school-note">Schools are grouped by six-digit School ID, not name spelling. ID format is checked, but official registry verification is still required. Missing, invalid, or all-zero IDs are excluded from counts and remain listed for review. The same ID across districts counts once division-wide; district totals may overlap. No accounts or activity records are merged or deleted.</p>
   </div>;
 }
