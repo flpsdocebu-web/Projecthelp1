@@ -222,10 +222,6 @@
 .reach .reach-reference-warning{display:block;width:100%;min-width:0;margin:14px 0 0;padding:14px 16px;border:1px solid #e8d197;border-radius:12px;background:#fff8e8;color:#795b22;font-size:12px;line-height:1.7;text-align:left;overflow-wrap:break-word}
 .reach .reach-reference-warning strong{display:block;width:100%;margin:0 0 6px;font-size:13px;line-height:1.5}
 .reach-donut-card>small{max-width:190px;line-height:1.5;text-align:center}
-.district-office-count{width:100%;margin-top:18px;padding:14px 16px;border:1px solid #d4e5dc;border-radius:12px;background:#f1f8f4;text-align:left}
-.district-office-count strong,.district-office-count span,.district-office-count small{display:block}
-.district-office-count strong{color:#21694e;font-size:16px}
-.district-office-count span,.district-office-count small{margin-top:5px;color:#668173;font-size:11px;line-height:1.6}
 .school-assignment-audit{margin-top:18px;padding:12px;border:1px solid #d4e5dc;border-radius:12px;background:#f8fbf9;font-size:11px}
 .school-assignment-audit summary{color:#285e49;font-weight:700;cursor:pointer;line-height:1.6}
 .reach .school-assignment-audit p{display:block;margin:12px 0;color:#637b6e;font-size:10px;line-height:1.7}

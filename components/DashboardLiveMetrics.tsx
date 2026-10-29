@@ -15,9 +15,6 @@ type Data = {
   prints: number;
   districts: number;
   schools: number;
-  districtOffices: number;
-  districtOfficeAccounts: number;
-  unassignedDistrictOfficeAccounts: number;
   totalUsers: number;
   months: Month[];
   schoolYears: SchoolYearReport[];
@@ -31,9 +28,6 @@ const empty: Data = {
   prints: 0,
   districts: 0,
   schools: 0,
-  districtOffices: 0,
-  districtOfficeAccounts: 0,
-  unassignedDistrictOfficeAccounts: 0,
   totalUsers: 0,
   months: [],
   schoolYears: [],
@@ -50,9 +44,6 @@ function normalize(payload: Partial<Data> | null | undefined): Data {
     prints: Number(payload?.prints || 0),
     districts: Number(payload?.districts || 0),
     schools: Number(payload?.schools || 0),
-    districtOffices: Number(payload?.districtOffices || 0),
-    districtOfficeAccounts: Number(payload?.districtOfficeAccounts || 0),
-    unassignedDistrictOfficeAccounts: Number(payload?.unassignedDistrictOfficeAccounts || 0),
     totalUsers: Number(payload?.totalUsers || 0),
     months: Array.isArray(payload?.months) ? payload.months : [],
     schoolYears: Array.isArray(payload?.schoolYears) ? payload.schoolYears : [],
@@ -177,7 +168,6 @@ export default function DashboardLiveMetrics() {
               </div>
             </div>
             {schoolReach.excess > 0 && <p className="reach-reference-warning" role="status"><strong>School count needs review</strong>{schoolReach.excess.toLocaleString()} more registered school{schoolReach.excess === 1 ? "" : "s"} than the {DIVISION_TOTALS.schools.toLocaleString()} reference total. Review the district school lists and reference total.</p>}
-            <div className="district-office-count"><strong>{data.districtOffices.toLocaleString()} district offices</strong><span>School ID 000000 · counted separately from schools</span><small>{data.districtOfficeAccounts.toLocaleString()} teacher/school accounts{data.unassignedDistrictOfficeAccounts > 0 ? ` · ${data.unassignedDistrictOfficeAccounts.toLocaleString()} without an assigned district` : ""}</small></div>
             <p className="reach-users"><i className="gold-dot" /><span><strong>{data.totalUsers.toLocaleString()} total users</strong><small>Students and school personnel</small></span></p>
             <div className="user-distribution-chart">
               <strong>Registered users</strong>
