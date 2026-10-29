@@ -99,8 +99,8 @@ export default function DashboardLiveMetrics() {
   const schoolPercentage = schoolReach.percentage;
   const districtPercentage = districtReach.percentage;
   const stats = [
-    { icon: "♙", label: "Student users", value: data.students, color: "blue" },
-    { icon: "♟", label: "Teacher/School users", value: data.teachers, color: "green-bg" },
+    { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="m2 9 10-5 10 5-10 5-10-5Z"/><path d="M6 11v6c4 3 8 3 12 0v-6M22 9v7"/></svg>, label: "Student users", value: data.students, color: "blue" },
+    { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M3 21V10h4V7l5-4 5 4v3h4v11H3ZM7 10v11M17 10v11M10 21v-5h4v5M3 14h4M17 14h4"/><circle cx="12" cy="9" r="1"/></svg>, label: "Teacher/School users", value: data.teachers, color: "green-bg" },
     { icon: "⇩", label: "PDF downloads", value: data.downloads, color: "gold" },
     { icon: <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d="M6 9V3h12v6M6 17H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><path d="M6 14h12v7H6z"/><path d="M18 12h.01"/></svg>, label: "Printed files", value: data.prints, color: "purple" },
   ];
