@@ -5,6 +5,7 @@ import AdminGuard from "@/components/AdminGuard";
 import Header from "@/components/Header";
 import ExportUsersExcel from "@/components/ExportUsersExcel";
 import UserActionIcon from "@/components/UserActionIcon";
+import ResetPasswordDialog from "@/components/ResetPasswordDialog";
 import { normalizedDistrict } from "@/lib/district";
 
 type User = {
@@ -36,6 +37,7 @@ export default function Users() {
   const [isError, setIsError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState<string | null>(null);
+  const [resetUser, setResetUser] = useState<User | null>(null);
   const [search, setSearch] = useState("");
   const [appliedSearch, setAppliedSearch] = useState("");
   const [refreshing, setRefreshing] = useState(false);
@@ -178,7 +180,7 @@ export default function Users() {
                 <td><time dateTime={user.createdAt}>{created(user.createdAt)}</time></td>
                 <td><span className={`presence-status ${user.online && !user.suspended ? "online" : "offline"}`}><i/>{user.online && !user.suspended ? "Online" : "Offline"}</span><span className={`account-status ${user.suspended ? "suspended" : "active"}`}>{user.suspended ? "Suspended" : "Active"}</span></td>
                 <td><div className="user-actions">
-                  <button className="user-action-icon" type="button" title="Reset password" aria-label={`Reset password for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => { const password = prompt("Enter a new password (minimum 8 characters)"); if (password) void action({ id: user.id, action: "reset", password }); }}><UserActionIcon name="reset"/></button>
+                  <button className="user-action-icon" type="button" title="Reset password" aria-label={`Reset password for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => setResetUser(user)}><UserActionIcon name="reset"/></button>
                   <button className="user-action-icon suspend" type="button" title={user.suspended ? "Activate account" : "Suspend account"} aria-label={`${user.suspended ? "Activate" : "Suspend"} account for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => void action({ id: user.id, action: "suspend", suspended: !user.suspended })}><UserActionIcon name={user.suspended ? "activate" : "suspend"}/></button>
                   <button className="user-action-icon delete" type="button" title="Delete account" aria-label={`Delete account for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => confirm(`Delete ${user.username}?`) && void action({ id: user.id }, "DELETE")}><UserActionIcon name="delete"/></button>
                 </div></td>
@@ -207,5 +209,5 @@ export default function Users() {
     {accountTable("Student Accounts", "Registered learners and their school information.", "student")}
     {accountTable("Teacher / School Accounts", "Registered school personnel and district assignments.", "school")}
     {accountTable("Division Personnel", "Administrators with division-level access.", "administrator")}
-  </section></main></AdminGuard>;
+  </section>{resetUser && <ResetPasswordDialog key={resetUser.id} user={resetUser} onClose={() => setResetUser(null)} onReset={() => { void load(); }}/>}</main></AdminGuard>;
 }

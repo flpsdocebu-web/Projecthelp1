@@ -257,6 +257,17 @@
 @media(max-width:480px){.password-help-dialog{padding:32px 22px 21px}.password-help-dialog h2{font-size:20px}}
 
 
+/* app/password-reset.css */
+.password-reset-backdrop{position:fixed;inset:0;z-index:1200;display:grid;place-items:center;padding:20px;background:rgba(4,20,30,.76);backdrop-filter:blur(5px)}
+.password-reset-dialog{position:relative;width:min(440px,100%);max-height:calc(100dvh - 40px);overflow:auto;padding:32px;border:1px solid #d4e7de;border-radius:22px;background:#fff;color:#173b46;box-shadow:0 24px 80px #0005}
+.password-reset-dialog h2{margin:8px 0 12px;padding-right:20px;font-size:25px;line-height:1.3}.password-reset-dialog p{font-size:15px;line-height:1.6;overflow-wrap:anywhere}.password-reset-dialog button,.password-reset-dialog input{font:inherit}
+.password-reset-dialog button{cursor:pointer}.password-reset-dialog button:disabled{opacity:.6;cursor:wait}.password-reset-close{position:absolute;right:12px;top:10px;width:34px;height:34px;border:0;border-radius:50%;background:#edf5f1;color:#375b50;font-size:25px!important}
+.password-reset-eyebrow{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#23765a}.password-reset-dialog label{display:block;margin:22px 0 8px;font-weight:700;font-size:15px}.password-reset-dialog input{box-sizing:border-box;width:100%;min-width:0;padding:13px;border:1px solid #abcdbc;border-radius:10px;font-size:17px}.password-reset-dialog small{display:block;margin-top:8px;color:#5b716b;font-size:12px;line-height:1.6}
+.password-reset-dialog :focus-visible{outline:3px solid #1685b7;outline-offset:3px}.password-reset-actions{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:24px}.password-reset-actions button,.password-reset-success>button{padding:11px 18px;border:1px solid #bfd7cc;border-radius:10px;background:#f5faf7;color:#245743;font-weight:700}.password-reset-dialog .password-reset-primary{background:#176a50;border-color:#176a50;color:#fff}.password-reset-error{padding:10px 12px;border-radius:9px;background:#fff0ee;color:#a12d29}
+.password-reset-success{text-align:center;padding-top:12px}.password-reset-success h2{padding-right:0;font-size:24px}.password-reset-check{width:76px;height:76px;fill:#e3f6eb;stroke:#20845b;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;animation:password-reset-pop .35s ease-out}.password-reset-check path{fill:none;stroke-dasharray:45;stroke-dashoffset:0;animation:password-reset-tick .55s ease-out}.password-reset-success>button{margin-top:12px;min-width:120px}
+@keyframes password-reset-pop{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:scale(1)}}@keyframes password-reset-tick{from{stroke-dashoffset:45}to{stroke-dashoffset:0}}@media(prefers-reduced-motion:reduce){.password-reset-check,.password-reset-check path{animation:none}}@media(max-width:480px){.password-reset-dialog{padding:28px 22px}}
+
+
 /* app/profile-editor.css */
 .profile-account-menu{position:relative;color:inherit}
 .profile-menu-trigger{display:flex;align-items:center;gap:9px;padding:6px 10px;border:1px solid transparent;border-radius:12px;background:transparent;color:inherit;text-align:left;cursor:pointer}
