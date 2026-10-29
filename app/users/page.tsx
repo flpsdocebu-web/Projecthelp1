@@ -4,6 +4,7 @@ import { FormEvent, useCallback, useEffect, useId, useMemo, useRef, useState } f
 import AdminGuard from "@/components/AdminGuard";
 import Header from "@/components/Header";
 import ExportUsersExcel from "@/components/ExportUsersExcel";
+import UserActionIcon from "@/components/UserActionIcon";
 import { normalizedDistrict } from "@/lib/district";
 
 type User = {
@@ -177,9 +178,9 @@ export default function Users() {
                 <td><time dateTime={user.createdAt}>{created(user.createdAt)}</time></td>
                 <td><span className={`presence-status ${user.online && !user.suspended ? "online" : "offline"}`}><i/>{user.online && !user.suspended ? "Online" : "Offline"}</span><span className={`account-status ${user.suspended ? "suspended" : "active"}`}>{user.suspended ? "Suspended" : "Active"}</span></td>
                 <td><div className="user-actions">
-                  <button type="button" disabled={busy === user.id || searchBusy} onClick={() => { const password = prompt("Enter a new password (minimum 8 characters)"); if (password) void action({ id: user.id, action: "reset", password }); }}>Reset</button>
-                  <button className="suspend" type="button" disabled={busy === user.id || searchBusy} onClick={() => void action({ id: user.id, action: "suspend", suspended: !user.suspended })}>{user.suspended ? "Activate" : "Suspend"}</button>
-                  <button className="delete" type="button" disabled={busy === user.id || searchBusy} onClick={() => confirm(`Delete ${user.username}?`) && void action({ id: user.id }, "DELETE")}>Delete</button>
+                  <button className="user-action-icon" type="button" title="Reset password" aria-label={`Reset password for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => { const password = prompt("Enter a new password (minimum 8 characters)"); if (password) void action({ id: user.id, action: "reset", password }); }}><UserActionIcon name="reset"/></button>
+                  <button className="user-action-icon suspend" type="button" title={user.suspended ? "Activate account" : "Suspend account"} aria-label={`${user.suspended ? "Activate" : "Suspend"} account for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => void action({ id: user.id, action: "suspend", suspended: !user.suspended })}><UserActionIcon name={user.suspended ? "activate" : "suspend"}/></button>
+                  <button className="user-action-icon delete" type="button" title="Delete account" aria-label={`Delete account for ${user.username}`} disabled={busy === user.id || searchBusy} onClick={() => confirm(`Delete ${user.username}?`) && void action({ id: user.id }, "DELETE")}><UserActionIcon name="delete"/></button>
                 </div></td>
               </tr>)}
             </tbody></table></div>
