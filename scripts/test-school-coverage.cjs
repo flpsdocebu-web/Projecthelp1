@@ -4,12 +4,13 @@ const path = require("node:path");
 const vm = require("node:vm");
 const ts = require("typescript");
 function load(file, dependencies = {}) {
-  const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020 } }).outputText;
+  const source = ts.transpileModule(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2020, esModuleInterop: true } }).outputText;
   const context = { exports: {}, require(name) { if (!(name in dependencies)) throw Error(`Unexpected dependency: ${name}`); return dependencies[name]; } };
   vm.runInNewContext(source, context); return context.exports;
 }
 const district = load("lib/district.ts");
 const coverage = load("lib/school-coverage.ts", { "./district": district });
+const audit = load('lib/school-assignment-audit.ts', { '@/data/registration-schools.json': JSON.parse(fs.readFileSync(path.join(__dirname,'../data/registration-schools.json'),'utf8')), './district': district });
 const rows = [
   { district: "Argao I", schoolName: "Central School", schoolId: "119100", accounts: "2" },
   { district: "District of Argao 1", schoolName: " CENTRAL ES ", schoolId: "119100", accounts: "3" },
@@ -33,10 +34,12 @@ assert.equal(grouped.find((item) => item.district === "Argao II").schools[0].sch
 assert.equal(grouped.find((item) => item.key === "UNASSIGNED").schools[0].schoolName, "Unassigned School");
 assert.equal(coverage.groupRegisteredSchools([]).length, 0);
 const summary = coverage.schoolCoverageSummary(rows);
-assert.equal(summary.schools, 6); // Distinct entered IDs plus a name/district fallback.
-assert.equal(summary.reviewAccounts, 4);
+assert.equal(summary.schools, 5); // Office 000000 is counted separately.
+assert.equal(summary.reviewAccounts, 3);
+assert.equal(summary.districtOffices, 1);
+assert.equal(summary.districtOfficeAccounts, 1);
 assert.equal(summary.districtCounts.find((row) => row.district === 'Argao I').schools, 2);
-assert.equal(summary.districtCounts.find((row) => row.district === 'Carmen').schools, 3);
+assert.equal(summary.districtCounts.find((row) => row.district === 'Carmen').schools, 2);
 assert.equal(summary.districtCounts.reduce((sum, row) => sum + row.accounts, 0), 14);
 assert.equal(coverage.countedSchoolId(' 119100 '), '119100');
 for (const absent of ['', null, '   ']) assert.equal(coverage.countedSchoolId(absent), null);
@@ -62,8 +65,9 @@ assert.equal(coverage.groupRegisteredSchools(rows).reduce((sum, group) => sum + 
   const route = load("app/api/schools/by-district/route.ts", {
     "next/server": { NextResponse: { json: (body, options = {}) => ({ body, status: options.status || 200, headers: options.headers }) } },
     "@/lib/auth": { requireAdministrator: async () => administrator },
-    "@/lib/db": { db: { query: async () => { queried = true; return [rows]; } } },
+    "@/lib/db": { db: { query: async () => { queried = true; return [rows.map(row=>({...row,role:'school'}))]; } } },
     "@/lib/school-coverage": coverage,
+    "@/lib/school-assignment-audit": audit,
   });
   assert.equal((await route.GET()).status, 403);
   assert.equal(queried, false);
@@ -83,8 +87,10 @@ assert.equal(coverage.groupRegisteredSchools(rows).reduce((sum, group) => sum + 
     } } },
   });
   const stats = (await statsRoute.GET()).body;
-  assert.equal(stats.schools, 6);
-  assert.equal(stats.schoolIdReviewAccounts, 4);
+  assert.equal(stats.schools, 5);
+  assert.equal(stats.schoolIdReviewAccounts, 3);
+  assert.equal(stats.districtOffices, 1);
+  assert.equal(stats.districtOfficeAccounts, 1);
   assert.equal(stats.teachers, 15);
   assert.equal(stats.totalUsers, 20);
   assert.ok(!JSON.stringify(stats).includes('Central School')); // No private roster on public stats.

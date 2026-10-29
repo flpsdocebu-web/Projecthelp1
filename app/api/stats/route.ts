@@ -14,7 +14,7 @@ export async function GET() {
     db.query<any[]>(`SELECT CONCAT(YEAR(created_at)-(MONTH(created_at)<6),'-',YEAR(created_at)-(MONTH(created_at)<6)+1) schoolYear,COUNT(DISTINCT resource_id) resources,SUM(action='preview') previews,SUM(action='download') downloads,SUM(action='print') prints,COUNT(*) totalActivity,MIN(created_at) firstActivity,MAX(created_at) lastActivity FROM resource_activity GROUP BY schoolYear ORDER BY schoolYear DESC`),
   ]);
 
-  const { schools, reviewAccounts, districtCounts } = schoolCoverageSummary(districtRows);
+  const { schools, reviewAccounts, districtCounts, districtOffices, districtOfficeAccounts, unassignedDistrictOfficeAccounts } = schoolCoverageSummary(districtRows);
   const schoolYears = schoolYearRows.map((row) => ({
     schoolYear: String(row.schoolYear),
     resources: Number(row.resources || 0),
@@ -33,6 +33,9 @@ export async function GET() {
     districts: districtCounts.length,
     schools,
     schoolIdReviewAccounts: reviewAccounts,
+    districtOffices,
+    districtOfficeAccounts,
+    unassignedDistrictOfficeAccounts,
     resources: Number(c.resources || 0),
     downloads: Number(c.downloads || 0),
     prints: Number(c.prints || 0),

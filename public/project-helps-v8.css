@@ -222,6 +222,21 @@
 .reach .reach-reference-warning{display:block;width:100%;min-width:0;margin:14px 0 0;padding:14px 16px;border:1px solid #e8d197;border-radius:12px;background:#fff8e8;color:#795b22;font-size:12px;line-height:1.7;text-align:left;overflow-wrap:break-word}
 .reach .reach-reference-warning strong{display:block;width:100%;margin:0 0 6px;font-size:13px;line-height:1.5}
 .reach-donut-card>small{max-width:190px;line-height:1.5;text-align:center}
+.district-office-count{width:100%;margin-top:18px;padding:14px 16px;border:1px solid #d4e5dc;border-radius:12px;background:#f1f8f4;text-align:left}
+.district-office-count strong,.district-office-count span,.district-office-count small{display:block}
+.district-office-count strong{color:#21694e;font-size:16px}
+.district-office-count span,.district-office-count small{margin-top:5px;color:#668173;font-size:11px;line-height:1.6}
+.school-assignment-audit{margin-top:18px;padding:12px;border:1px solid #d4e5dc;border-radius:12px;background:#f8fbf9;font-size:11px}
+.school-assignment-audit summary{color:#285e49;font-weight:700;cursor:pointer;line-height:1.6}
+.reach .school-assignment-audit p{display:block;margin:12px 0;color:#637b6e;font-size:10px;line-height:1.7}
+.school-assignment-audit dl{display:grid;gap:7px;margin:12px 0}
+.school-assignment-audit dl>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px;background:#edf5f0;border-radius:7px}
+.school-assignment-audit dt{color:#526e5e;font-size:10px}.school-assignment-audit dd{margin:0;color:#235c42;font-weight:700}
+.school-assignment-audit button{padding:6px 9px;border:1px solid #c5d9ce;border-radius:7px;background:#fff;color:#285e49;cursor:pointer;font:inherit}
+.school-assignment-audit ul{max-height:400px;overflow:auto;margin:12px 0 0;padding:0;list-style:none}
+.school-assignment-audit li{padding:11px 0;border-top:1px solid #dce8e0;overflow-wrap:anywhere}
+.school-assignment-audit li strong,.school-assignment-audit li small,.school-assignment-audit li span{display:block;line-height:1.6}
+.school-assignment-audit li small{margin-top:4px;color:#6a8174;font-size:9px}.school-assignment-audit li span{margin-top:5px;color:#8c6529;font-size:10px}
 
 
 /* app/registration-schools.css */

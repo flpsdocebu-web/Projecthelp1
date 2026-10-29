@@ -12,6 +12,7 @@ function standardSchoolId(value: unknown) {
 }
 function schoolIdentity(row: SchoolCoverageRow) {
   const id = countedSchoolId(row.schoolId);
+  if (id === "000000") return `office:${normalizedDistrict(row.district || "").key || "UNASSIGNED"}`;
   if (id) return `id:${id}`;
   const name = String(row.schoolName || "").trim().replace(/\s+/g, " ").toUpperCase();
   return name ? `name:${JSON.stringify([normalizedDistrict(row.district || "").key || "UNASSIGNED", name])}` : null;
@@ -28,10 +29,10 @@ export function groupRegisteredSchools(rows: SchoolCoverageRow[]) {
     const schoolId = String(row.schoolId || "").trim();
     const validId = countedSchoolId(schoolId);
     const schoolKey = schoolIdentity(row) || "review:unidentified";
-    const school = group.schools.get(schoolKey) || { key: schoolKey, schoolName, schoolIds: new Set<string>(), names: new Set<string>(), accounts: 0, needsReview: !standardSchoolId(schoolId) };
+    const school = group.schools.get(schoolKey) || { key: schoolKey, schoolName: schoolId === "000000" ? `${district.label || "Unassigned district"} District Office` : schoolName, schoolIds: new Set<string>(), names: new Set<string>(), accounts: 0, needsReview: schoolId === "000000" ? !district.key : !standardSchoolId(schoolId) };
     if (schoolId) school.schoolIds.add(schoolId);
     school.names.add(schoolName);
-    if (validId) {
+    if (validId && validId !== "000000") {
       const districts = idDistricts.get(validId) || new Set<string>(); districts.add(key); idDistricts.set(validId, districts);
       const nameKey = `${key}:${schoolName.toUpperCase()}`;
       const ids = nameIds.get(nameKey) || new Set<string>(); ids.add(validId); nameIds.set(nameKey, ids);
@@ -47,9 +48,17 @@ export function groupRegisteredSchools(rows: SchoolCoverageRow[]) {
 
 export function schoolCoverageSummary(rows: SchoolCoverageRow[]) {
   const ids = new Set<string>();
+  const offices = new Set<string>();
+  let districtOfficeAccounts = 0, unassignedDistrictOfficeAccounts = 0;
   let reviewAccounts = 0;
   for (const row of rows) {
     const id = countedSchoolId(row.schoolId);
+    if (id === "000000") {
+      const district = normalizedDistrict(row.district || "");
+      districtOfficeAccounts += Number(row.accounts || 0);
+      if (district.key) offices.add(district.key); else unassignedDistrictOfficeAccounts += Number(row.accounts || 0);
+      continue;
+    }
     const identity = schoolIdentity(row);
     if (identity) ids.add(identity);
     if (!standardSchoolId(id)) reviewAccounts += Number(row.accounts || 0);
@@ -57,7 +66,7 @@ export function schoolCoverageSummary(rows: SchoolCoverageRow[]) {
   const districtCounts = groupRegisteredSchools(rows).filter((group) => group.key !== "UNASSIGNED").map((group) => ({
     district: group.district,
     accounts: group.schools.reduce((sum, school) => sum + school.accounts, 0),
-    schools: group.schools.filter((school) => !school.key.startsWith("review:")).length,
+    schools: group.schools.filter((school) => !school.key.startsWith("review:") && !school.key.startsWith("office:")).length,
   }));
-  return { schools: ids.size, reviewAccounts, districtCounts };
+  return { schools: ids.size, reviewAccounts, districtCounts, districtOffices: offices.size, districtOfficeAccounts, unassignedDistrictOfficeAccounts };
 }
