@@ -14,7 +14,7 @@ for (const item of [
 ]) {
   const markup = renderToStaticMarkup(React.createElement(context.exports.default, {item}));
   for (const text of Object.values(item)) assert.ok(markup.includes(text));
-  assert.ok(markup.includes('src="/phelps-resource-cover.png?v=84fd443c"'));
+  assert.ok(markup.includes('src="/phelps-resource-cover.png"'));
   assert.ok(markup.includes('loading="lazy"'));
   assert.ok(!markup.includes('sheet-cover'));
 }
@@ -25,7 +25,7 @@ assert.ok(css.includes('flex-wrap:wrap'));
 assert.ok(!css.includes('line-clamp'));
 assert.ok(fs.readFileSync('components/ResourceCard.tsx','utf8').includes('<ResourceCover item={item} />'));
 const image = fs.readFileSync('public/phelps-resource-cover.png');
-assert.equal(image.readUInt32BE(16),1920);
-assert.equal(image.readUInt32BE(20),1080);
-assert.equal(require('node:crypto').createHash('sha256').update(image).digest('hex'), '84fd443c98ba821021fe96f47df774010920b0eed0437967af2a1570804e57a9');
+assert.equal(image.readUInt32BE(16),1532);
+assert.equal(image.readUInt32BE(20),876);
+assert.equal(require('node:crypto').createHash('sha256').update(image).digest('hex'), '33d7c4f8b062e1702bfc84d2f9f922952911505baf5b74a82a21888059c396c4');
 console.log('Resource covers passed: original artwork preserved; subject, grade and term visible; long labels wrap; image stays uncropped.');
