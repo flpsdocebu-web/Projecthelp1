@@ -18,7 +18,7 @@ type ReportUser = {
   createdAt?: string;
 };
 
-export default function ExportUsersExcel({ users, districtName, compact = false }: { users: ReportUser[]; districtName?: string; compact?: boolean }) {
+export default function ExportUsersExcel({ users, districtName, compact = false, disabled = false }: { users: ReportUser[]; districtName?: string; compact?: boolean; disabled?: boolean }) {
   const [exporting, setExporting] = useState(false);
 
   async function exportReport() {
@@ -99,5 +99,5 @@ export default function ExportUsersExcel({ users, districtName, compact = false 
     }
   }
 
-  return <button className={`export-excel-button ${compact ? "compact" : ""}`} type="button" onClick={exportReport} disabled={exporting || users.length === 0} aria-label={districtName ? `Export ${districtName} district accounts to Excel` : "Export User Management report to Excel"}><span aria-hidden="true">X</span>{!compact && (exporting ? "Preparing report…" : "Export Excel")}</button>;
+  return <button className={`export-excel-button ${compact ? "compact" : ""}`} type="button" onClick={exportReport} disabled={disabled || exporting || users.length === 0} aria-label={districtName ? `Export ${districtName} district accounts to Excel` : "Export User Management report to Excel"}><span aria-hidden="true">X</span>{!compact && (exporting ? "Preparing report…" : "Export Excel")}</button>;
 }
