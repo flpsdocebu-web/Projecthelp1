@@ -7,7 +7,8 @@ import DashboardLiveMetrics from "@/components/DashboardLiveMetrics";
 import UploadedResourceAdmin from "@/components/UploadedResourceAdmin";
 import DashboardGreeting from "@/components/DashboardGreeting";
 import DashboardReportButton from "@/components/DashboardReportButton";
+import LasThumbnailUploader from "@/components/LasThumbnailUploader";
 
 export default function Dashboard() {
-  return <AdminGuard><main className="dashboard"><Header compact/><section className="dash-shell"><div className="dash-head"><DashboardGreeting/><div className="dash-tools"><DashboardAutoRefresh/><DashboardReportButton/><UploadResourceManager/></div></div><DashboardLiveMetrics/><div className="dash-grid"><ResourceActivityReport/></div><UploadedResourceAdmin/></section></main></AdminGuard>;
+  return <AdminGuard><main className="dashboard"><Header compact/><section className="dash-shell"><div className="dash-head"><DashboardGreeting/><div className="dash-tools"><DashboardAutoRefresh/><DashboardReportButton/><UploadResourceManager/></div></div><DashboardLiveMetrics/><LasThumbnailUploader/><div className="dash-grid"><ResourceActivityReport/></div><UploadedResourceAdmin/></section></main></AdminGuard>;
 }

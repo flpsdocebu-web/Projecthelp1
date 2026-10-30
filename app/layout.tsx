@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import SiteFooter from "@/components/SiteFooter";
+import LasThumbnailProvider from "@/components/LasThumbnailProvider";
 import "./globals.css";
 import "./upload-modal.css";
 import "./resource-admin.css";
@@ -24,6 +25,7 @@ import "./registration-schools.css";
 import "./learning-area-uploads.css";
 import "./resource-cover.css";
 import "./password-reset.css";
+import "./las-thumbnail.css";
 
 export const metadata: Metadata = {
   title: "Flexible Learning Program | SDO Cebu Province",
@@ -65,7 +67,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           dangerouslySetInnerHTML={{ __html: embeddedStyles }}
         />
       </head>
-      <body><div className="site-page-shell">{children}<SiteFooter /></div></body>
+      <body><LasThumbnailProvider><div className="site-page-shell">{children}<SiteFooter /></div></LasThumbnailProvider></body>
     </html>
   );
 }

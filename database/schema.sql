@@ -56,6 +56,16 @@ CREATE TABLE IF NOT EXISTS resource_activity (
   INDEX idx_activity_resource (resource_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS las_thumbnail (
+  id TINYINT UNSIGNED PRIMARY KEY,
+  image_data MEDIUMBLOB NOT NULL,
+  image_version CHAR(64) NOT NULL,
+  width INT UNSIGNED NOT NULL,
+  height INT UNSIGNED NOT NULL,
+  updated_by CHAR(36) NOT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS password_reset_tokens (
   token_hash CHAR(64) PRIMARY KEY,
   user_id CHAR(36) NOT NULL,

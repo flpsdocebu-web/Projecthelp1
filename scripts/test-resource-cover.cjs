@@ -5,7 +5,8 @@ const ts = require('typescript');
 const React = require('react');
 const {renderToStaticMarkup} = require('react-dom/server');
 const source = fs.readFileSync('components/ResourceCover.tsx', 'utf8');
-const context = {exports: {}, require};
+let thumbnail = {url:'/phelps-resource-cover.png',width:1532,height:876,custom:false};
+const context = {exports: {}, require: name => name === './LasThumbnailProvider' ? {defaultLasThumbnail:thumbnail,useLasThumbnail:()=>({thumbnail})} : require(name)};
 vm.runInNewContext(ts.transpileModule(source, {compilerOptions: {module: ts.ModuleKind.CommonJS, jsx: ts.JsxEmit.ReactJSX}}).outputText, context);
 for (const item of [
   {subject:'ALTERNATIVE LEARNING SYSTEM (ALS)', grade:'Grade 7', term:'Term 1'},
@@ -19,6 +20,8 @@ for (const item of [
   assert.ok(!markup.includes('sheet-cover'));
 }
 const css = fs.readFileSync('app/resource-cover.css','utf8');
+thumbnail = {url:'/api/las-thumbnail/image?v=test-version',width:1600,height:900,custom:true};
+assert.ok(renderToStaticMarkup(React.createElement(context.exports.default,{item:{subject:'SCIENCE',grade:'Grade 6',term:'Term 2'}})).includes('/api/las-thumbnail/image?v=test-version'));
 assert.ok(css.includes('object-fit:contain'));
 assert.ok(css.includes('overflow-wrap:anywhere'));
 assert.ok(css.includes('flex-wrap:wrap'));
