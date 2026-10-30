@@ -10,6 +10,20 @@ export function learningAreaLabel(value: unknown) {
 }
 
 const emptyCounts = () => ({ term1: 0, term2: 0, term3: 0, fullYear: 0, other: 0, total: 0 });
+export function resourceTermLabel(value: unknown) {
+  const term = String(value || "").trim();
+  const match = term.match(/^(?:term\s*)?([123])$/i);
+  return /^full\s*year$/i.test(term) ? "Full Year" : match ? `Term ${match[1]}` : "Other / unspecified";
+}
+
+export function resourceLibraryLink(learningArea: string, term?: string) {
+  return `/library1/?subject=${encodeURIComponent(learningArea)}${term ? `&term=${encodeURIComponent(term)}` : ""}`;
+}
+
+export function summarizeResourceInventory(resources: { learningArea: unknown; term: unknown }[]) {
+  return summarizeLearningAreaUploads(resources.map((resource) => ({ learningArea: resource.learningArea, term: resource.term, uploads: 1 })));
+}
+
 export function summarizeLearningAreaUploads(rows: { learningArea: unknown; term: unknown; uploads: number | string }[]): UploadSummary {
   const areas = new Map<string, LearningAreaUpload>();
   const totals = emptyCounts();
@@ -18,9 +32,8 @@ export function summarizeLearningAreaUploads(rows: { learningArea: unknown; term
     if (!Number.isSafeInteger(count) || count < 0) throw new Error("Invalid upload count.");
     const name = learningAreaLabel(row.learningArea), key = name.toUpperCase();
     const area = areas.get(key) || { learningArea: name, ...emptyCounts() };
-    const term = String(row.term || "").trim();
-    const match = term.match(/^(?:term\s*)?([123])$/i);
-    const bucket = /^full\s*year$/i.test(term) ? "fullYear" : match ? `term${match[1]}` as "term1" | "term2" | "term3" : "other";
+    const term = resourceTermLabel(row.term);
+    const bucket = term === "Full Year" ? "fullYear" : term === "Term 1" ? "term1" : term === "Term 2" ? "term2" : term === "Term 3" ? "term3" : "other";
     area[bucket] += count; area.total += count;
     totals[bucket] += count; totals.total += count;
     areas.set(key, area);

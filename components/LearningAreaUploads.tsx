@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useState } from "react";
 import type { UploadSummary } from "@/lib/learning-area-uploads";
+import { summarizeResourceInventory } from "@/lib/learning-area-uploads";
 import LearningAreaUploadTable from "@/components/LearningAreaUploadTable";
 import LearningAreaUploadReport, { type UploadReportSnapshot } from "@/components/LearningAreaUploadReport";
 
@@ -21,11 +22,12 @@ export default function LearningAreaUploads() {
       if (inFlight) return;
       inFlight = true; setLoading(true);
       try {
-        const response = await fetch("/api/resources/uploads-by-area", { cache: "no-store", signal: controller.signal });
+        const response = await fetch("/api/resources", { cache: "no-store", signal: controller.signal });
         const result = await response.json();
         if (!response.ok) throw new Error(result.error || "Unable to load upload counts.");
+        if (!Array.isArray(result.resources)) throw new Error("Invalid resource inventory.");
         if (!controller.signal.aborted) {
-          setSummary(result); setError("");
+          setSummary(summarizeResourceInventory(result.resources)); setError("");
           setLoadedAt(new Date().toISOString());
           setUpdatedAt(new Date().toLocaleTimeString("en-PH", { timeZone: "Asia/Manila", hour: "numeric", minute: "2-digit" }));
         }
@@ -41,17 +43,17 @@ export default function LearningAreaUploads() {
   const visibleTotals = useMemo(() => visible.reduce((total, row) => ({ term1: total.term1 + row.term1, term2: total.term2 + row.term2, term3: total.term3 + row.term3, fullYear: total.fullYear + row.fullYear, other: total.other + row.other, total: total.total + row.total }), { term1: 0, term2: 0, term3: 0, fullYear: 0, other: 0, total: 0 }), [visible]);
   const hasOther = Boolean(summary?.totals.other);
   return <section className="learning-area-uploads" aria-labelledby={`${id}-title`}>
-    <header><div><small>Uploaded learning resources</small><h3 id={`${id}-title`}>Uploads by learning area and term</h3><p>Current resource inventory · all upload dates</p></div>{summary && <span className="area-upload-total">{summary.totals.total.toLocaleString()} resources</span>}</header>
-    {error && <p className="area-upload-error" role="alert">{error}{summary && " Showing the last successfully loaded counts."}</p>}
+    <header><div><small>Uploaded learning resources</small><h3 id={`${id}-title`}>Uploads by learning area and term</h3><p>Current resource inventory · all grade levels · all upload dates</p></div>{summary && !error && <span className="area-upload-total">{summary.totals.total.toLocaleString()} resources</span>}</header>
+    {error && <p className="area-upload-error" role="alert">{error} Previous figures are hidden until the current resource inventory can be verified.</p>}
     {!summary && loading && <p role="status">Loading learning-area uploads…</p>}
-    {summary && <>
+    {summary && !error && <>
       <div className="area-upload-term-totals">{([['Term 1', summary.totals.term1], ['Term 2', summary.totals.term2], ['Term 3', summary.totals.term3], ['Full Year', summary.totals.fullYear]] as const).map(([label, value]) => <div key={label}><small>{label}</small><strong>{value.toLocaleString()}</strong></div>)}</div>
       <div className="area-upload-controls"><label htmlFor={`${id}-search`}>Find learning area<input id={`${id}-search`} type="search" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search learning areas…" /></label><div className="area-upload-control-buttons"><button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)}>{loading ? "Refreshing…" : "Refresh counts"}</button><button type="button" className="area-upload-generate" disabled={loading || Boolean(error) || !loadedAt} onClick={() => setReport({ summary, loadedAt, generatedAt: new Date().toISOString() })}>Generate report</button></div></div>
-      <LearningAreaUploadTable areas={visible} totals={visibleTotals} hasOther={hasOther} totalLabel={search.trim() ? "Visible total" : "Total uploads"} emptyMessage={summary.areas.length ? "No learning areas match your search." : "No resources have been uploaded yet."} />
-      <p className="area-upload-note">Names follow the Learning Resources menu. Legacy Mathematics, SPED, and Kindergarten uploads use their current displayed labels.{hasOther && " Unrecognized terms remain visible in Other / unspecified."}</p>
+      <LearningAreaUploadTable areas={visible} totals={visibleTotals} hasOther={hasOther} linkToResources totalLabel={search.trim() ? "Visible total" : "Total uploads"} emptyMessage={summary.areas.length ? "No learning areas match your search." : "No resources have been uploaded yet."} />
+      <p className="area-upload-note">Counts use the same resource list and term rules as Learning Resources, across all grades. Click a count to view the matching LAS files. Legacy Mathematics, SPED, and Kindergarten uploads use their current displayed labels.{hasOther && " Unrecognized terms remain visible in Other / unspecified."}</p>
       <div className="area-upload-status"><span>{visible.length} of {summary.areas.length} learning areas</span><span>Refreshes every 30 seconds{updatedAt ? ` · Updated ${updatedAt} Manila time` : ""}</span></div>
     </>}
-    {!summary && !loading && error && <button type="button" onClick={() => setRefresh((value) => value + 1)}>Retry</button>}
+    {error && <button type="button" disabled={loading} onClick={() => setRefresh((value) => value + 1)}>{loading ? "Refreshing…" : "Retry current counts"}</button>}
     {report && <LearningAreaUploadReport snapshot={report} onClose={() => setReport(null)} />}
   </section>;
 }

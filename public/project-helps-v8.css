@@ -242,6 +242,7 @@
  .area-upload-report-heading,.area-upload-report-meta{break-inside:avoid;page-break-inside:avoid}
 }
 @media(max-width:620px){.learning-area-uploads>header{flex-direction:column}.area-upload-term-totals{grid-template-columns:repeat(2,minmax(0,1fr))}.area-upload-controls{align-items:stretch;flex-direction:column}.area-upload-controls label{max-width:none}.learning-area-uploads h3{font-size:17px}}
+.area-upload-count-link{display:inline-flex;align-items:center;justify-content:center;min-width:34px;min-height:32px;border-radius:7px;color:#17664f;text-decoration:underline;text-underline-offset:3px;font-weight:700}.area-upload-count-link:hover{background:#e0f2e8}.area-upload-count-link:focus-visible{outline:3px solid #1b83b6;outline-offset:2px}
 
 
 /* app/location-rankings.css */
